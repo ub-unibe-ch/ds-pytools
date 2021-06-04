@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><html><body><oai-pmh xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responsedate>2021-06-03T22:17:22Z</responsedate>
+<request identifier="oai:agora.ch:aip-001:1912:3::19" metadataprefix="oai_dc" verb="GetRecord">https://www.e-periodica.ch/oai/dataprovider</request>
+<getrecord>
+<record>
+<header>
+<identifier>oai:agora.ch:aip-001:1912:3::19</identifier>
+<datestamp>2018-05-31T11:42:56Z</datestamp>
+<setspec>ddc:370</setspec>
+</header>
+<metadata>
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Dispositions constitutionnelles : lois générales et spéciales</dc:title>
+<dc:creator>[s.n.]</dc:creator>
+<dc:subject></dc:subject>
+<dc:description></dc:description>
+<dc:publisher>[s.n.]</dc:publisher>
+<dc:contributor></dc:contributor>
+<dc:date>1912</dc:date>
+<dc:type>Text</dc:type>
+<dc:type>Journal Article</dc:type>
+<dc:source>Annuaire de l'instruction publique en Suisse</dc:source>
+<dc:source>1163407-8</dc:source>
+<dc:source></dc:source> <dc:source>3</dc:source>
+<dc:source>1912</dc:source>
+<dc:source></dc:source> <dc:source></dc:source> <dc:source>279</dc:source>
+<dc:language></dc:language>
+<dc:relation></dc:relation>
+<dc:coverage></dc:coverage>
+<dc:rights></dc:rights>
+<dc:format>text/html</dc:format>
+<dc:identifier>https://www.e-periodica.ch/digbib/view?pid=aip-001:1912:3::19</dc:identifier>
+<dc:format>application/pdf</dc:format>
+<dc:identifier>https://www.e-periodica.ch/cntmng?type=pdf&amp;pid=aip-001:1912:3::19</dc:identifier>
+<dc:format>text/html</dc:format>
+<dc:identifier>doi:10.5169/seals-109414</dc:identifier>
+</oai_dc:dc>
+</metadata>
+</record>
+</getrecord>
+</oai-pmh></body></html>
