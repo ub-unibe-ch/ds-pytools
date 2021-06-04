@@ -47,7 +47,7 @@ Therefore, it defines the following functions:
     Accesses the OAI interface according to given parameters and scrapes its content.
     
     Parameters:
-    All available native OAI verbs and parameter/value pairs.
+    * All available native OAI verbs and parameter/value pairs.
     
 - **download_record(ID, metadataPrefix='mods')**:
 
@@ -55,15 +55,15 @@ Therefore, it defines the following functions:
     Throws a notice if metadata file already exists and leaves the existing one.
     
     Parameters:
-    ID = E-rara ID of the desired record.
-    metadataPrefix = Metadata format to be delivered. Default value is MODS.
+    * ID = E-rara ID of the desired record.
+    * metadataPrefix = Metadata format to be delivered. Default value is MODS.
     
 - **set_size(Set)**:
 
     Accesses the OAI interface and retrieves the size of a given OAI set.
     
     Parameters:
-    Set: The 'setSpec' short cut of the desired OAI set.
+    * Set: The 'setSpec' short cut of the desired OAI set.
     
 - **retrieve_set_metadata(Set, foldername, metadataPrefix='mods')**:
    
@@ -77,9 +77,9 @@ Therefore, it defines the following functions:
     * saves metadata to single <e-rara ID>.xml files in the folder.
     
     Parameters:
-    Set = The 'setSpec' short cut of the desired OAI set.
-    foldername = The name of the folder which will be created to hold the metadata files.
-    metadataPrefix = Metadata format to be delivered. Default value is MODS.
+    * Set = The 'setSpec' short cut of the desired OAI set.
+    * foldername = The name of the folder which will be created to hold the metadata files.
+    * metadataPrefix = Metadata format to be delivered. Default value is MODS.
  
 ## 3. Download fulltext files from e-rara website
 
@@ -93,7 +93,7 @@ The chapter defines the following functions:
     Builds with e-rara ID the fulltext URL, reads the TXT and saves it to <e-rara ID>.txt file on local disk.
     
     Parameter:
-    ID = E-rara ID of the desired record.
+    * ID = E-rara ID of the desired record.
 
 - **retrieve_set_fulltexts(Set, foldername)**:
     
@@ -108,7 +108,7 @@ The chapter defines the following functions:
     * finally checks all fulltext files in the folder if they are empty, and deletes those empty files.
     
     Parameters:
-    Set = The 'setSpec' short cut of the desired set.
-    foldername = The name of the folder which will be created to hold the fulltext files.
+    * Set = The 'setSpec' short cut of the desired set.
+    * foldername = The name of the folder which will be created to hold the fulltext files.
     
  

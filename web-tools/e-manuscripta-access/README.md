@@ -11,7 +11,7 @@ The notebook consists of four parts:
 0. Introduction
 1. Metadata access with Polymatheia
 2. Direct metadata access via OAI-PMH
-3. Download fulltext files from e-rara website.
+3. Download fulltext files from e-manuscripta website.
 
 You may start from the beginning and walk trough the whole notebook or jump to the section that suits you. Also, it's a good idea to play around with the code in the cells and see what happens. Have fun!
 
@@ -47,7 +47,7 @@ Therefore, it defines the following functions:
     Accesses the OAI interface according to given parameters and scrapes its content.
     
     Parameters:
-    All available native OAI verbs and parameter/value pairs.
+    * All available native OAI verbs and parameter/value pairs.
     
 - **download_record(ID, metadataPrefix='mods')**:
 
@@ -55,8 +55,8 @@ Therefore, it defines the following functions:
     Throws a notice if metadata file already exists and leaves the existing one.
     
     Parameters:
-    ID = E-manuscripta ID of the desired record.
-    metadataPrefix = Metadata format to be delivered. Default value is MODS.
+    * ID = E-manuscripta ID of the desired record.
+    * metadataPrefix = Metadata format to be delivered. Default value is MODS.
     
 - **set_size(Set)**:
 
@@ -77,9 +77,9 @@ Therefore, it defines the following functions:
     * saves metadata to single <e-manuscripta ID>.xml files in the folder.
     
     Parameters:
-    Set = The 'setSpec' short cut of the desired OAI set.
-    foldername = The name of the folder which will be created to hold the metadata files.
-    metadataPrefix = Metadata format to be delivered. Default value is MODS.
+    * Set = The 'setSpec' short cut of the desired OAI set.
+    * foldername = The name of the folder which will be created to hold the metadata files.
+    * metadataPrefix = Metadata format to be delivered. Default value is MODS.
  
 ## 3. Download fulltext files from e-manuscripta website
 
@@ -93,7 +93,7 @@ The chapter defines the following functions:
     Builds with e-manuscripta ID the fulltext URL and downloads the PDF file.
     
     Parameter:
-    ID = E-manuscripta ID of the desired record.
+    * ID = E-manuscripta ID of the desired record.
     
 - **tech_metadata(pdf_path)**:
     
@@ -112,5 +112,5 @@ The chapter defines the following functions:
     * downloads PDF fulltexts according to IDs from e-manuscripta website
     
     Parameters:
-    Set = The desired OAI set.
-    foldername = name of the folder in which the fulltexts will be stored.
+    * Set = The desired OAI set.
+    * foldername = name of the folder in which the fulltexts will be stored.
