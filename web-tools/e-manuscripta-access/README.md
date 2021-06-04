@@ -2,9 +2,9 @@
 
 The Python Jupyer notebook [e_manuscripta_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-manuscripta-access/e_manuscripta_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-manuscripta](https://www.e-manuscripta.ch/)**, the platform for manuscript material from Swiss libraries and archives. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-manuscripta service for retrieving metadata in different formats, and the e-manuscripta website in addition for downloading fulltexts.
 
-**No Python available** on your machine? Use the online Jupyter notebook with Binder: 
+**No Python available** on your machine? Use the online Jupyter notebook with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/HEAD?filepath=web-tools%2Fe-manuscripta-access%2Fe_manuscripta_metadata_fulltext.ipynb)
 
-Also, a static version of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-manuscripta-access/e_manuscripta_metadata_fulltext.ipynb).
+Also, a **static version** of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-manuscripta-access/e_manuscripta_metadata_fulltext.ipynb).
 
 The notebook consists of four parts:
 

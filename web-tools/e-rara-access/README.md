@@ -2,9 +2,9 @@
 
 The Python Jupyer notebook [e_rara_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-rara](https://www.e-rara.ch/)**, the platform for digitized rare books from Swiss institutions. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-rara service for retrieving metadata in different formats, and the e-rara website in addition for downloading fulltexts.
 
-**No Python available** on your machine? Use the online Jupyter notebook with Binder: 
+**No Python available** on your machine? Use the online Jupyter notebook with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/HEAD?filepath=web-tools%2Fe-rara-access%2Fe_rara_metadata_fulltext.ipynb)
 
-Also, a static version of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb).
+Also, a **static version** of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb).
 
 The notebook consists of four parts:
 
