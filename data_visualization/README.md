@@ -1,2 +1,0 @@
-# DVIS
-Data visualization tools
