@@ -1,8 +1,8 @@
 # e-rara: accessing metadata and fulltexts
 
-This Python Jupyer notebook [e_rara_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-rara](https://www.e-rara.ch/)**, the platform for digitized rare books from Swiss institutions. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-rara service for retrieving metadata in different formats, and the e-rara website in addition for downloading fulltexts.
+The Python Jupyer notebook [e_rara_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-rara](https://www.e-rara.ch/)**, the platform for digitized rare books from Swiss institutions. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-rara service for retrieving metadata in different formats, and the e-rara website in addition for downloading fulltexts.
 
-No Python available on your machine? Use the online Jupyter notebook with Binder: 
+**No Python available** on your machine? Use the online Jupyter notebook with Binder: 
 
 Also, a static version of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb).
 
@@ -34,7 +34,7 @@ Then, it shows **how to access certain metadata elements** and how to **save and
 
 ## 2. Direct metadata access via OAI-PMH
 
-The *Polymatheia* library doesn't offer methods for *all* OAI verbs. For instance, there is no `ListIdentifiers` and no `GetRecord` wrapper. That's where more manual coding is needed. On the other hand accessing the e-rara OAI-PMH directly gives you more freedom how to interact with the interface, naturally. You can use the functions without deeper programming skills - nevertheless these might be helpful if you want to adapt those functions for yourself.
+The *Polymatheia* library doesn't offer methods for *all* OAI verbs. For instance, there is no *ListIdentifiers* and no *GetRecord* wrapper. That's where more manual coding is needed. On the other hand accessing the e-rara OAI-PMH directly gives you more freedom how to interact with the interface, naturally. You can use the functions without deeper programming skills - nevertheless these might be helpful if you want to adapt those functions for yourself.
 
 The chapter makes use of the follwing OAI verbs:
 - oai: 'Identify'
@@ -47,10 +47,10 @@ Therefore, it defines the following functions:
     Accesses the OAI interface according to given parameters and scrapes its content.
     
     Parameters:
-    * All available native OAI verbs and parameter/value pairs.
+    All available native OAI verbs and parameter/value pairs.
     
 - **download_record(ID, metadataPrefix='mods')**:
-- 
+
     Downloads a certain metadata record from OAI to a single XML file.
     Throws a notice if metadata file already exists and leaves the existing one.
     
@@ -59,10 +59,11 @@ Therefore, it defines the following functions:
     metadataPrefix = Metadata format to be delivered. Default value is MODS.
     
 - **set_size(Set)**:
+
     Accesses the OAI interface and retrieves the size of a given OAI set.
     
     Parameters:
-    * Set: The 'setSpec' short cut of the desired OAI set.
+    Set: The 'setSpec' short cut of the desired OAI set.
     
 - **retrieve_set_metadata(Set, foldername, metadataPrefix='mods')**:
    
@@ -92,7 +93,7 @@ The chapter defines the following functions:
     Builds with e-rara ID the fulltext URL, reads the TXT and saves it to <e-rara ID>.txt file on local disk.
     
     Parameter:
-    * ID = E-rara ID of the desired record.
+    ID = E-rara ID of the desired record.
 
 - **retrieve_set_fulltexts(Set, foldername)**:
     
