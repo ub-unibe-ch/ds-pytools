@@ -18,11 +18,11 @@ Kindly brought to you by [University Library Bern](https://www.unibe.ch/universi
 
 This **Digital Toolbox** is a joint project of the [Digital Scholarship Support](https://www.digitalisierung.unibe.ch/projekte/digital_scholarship) (German) and Subject Specialists of the [Library of Exact Sciences](https://www.unibe.ch/university/services/university_library/faculty_libraries/sciences/library_of_exact_sciences_bewi/index_eng.html).
 
-![alt text](https://github.com/ub-unibe-ch/ds-pytools/images/DS_en.png "Digital Scholarhip")
+![](https://github.com/ub-unibe-ch/ds-pytools/blob/main/images/DS_en.png "Digital Scholarhip")
 
 **Digital Scholarship (DS)** - this term is used to describe the increasing use of new digital, data-driven methods in various branches of arts and humanities, social sciences and sciences. Researchers work on the basis of, with and on specific data sets and data structures, use data analysis, machine learning and big data technologies, and publish research results in new digital forms. With **Digital Scholarship Services** the University Library Bern actively supports these digital and data-driven methods in research and teaching.
 
-![alt text](https://github.com/ub-unibe-ch/ds-pytools/images/what_needs_DS.png "Digital Scholarship Support")
+![](https://github.com/ub-unibe-ch/ds-pytools/blob/main/images/what_needs_DS.png "Digital Scholarship Support")
 
 
 
