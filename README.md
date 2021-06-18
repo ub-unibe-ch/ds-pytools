@@ -12,11 +12,11 @@ We recommend installing Python and Jupyter using the conda package manager. The 
 
 Additional installation instructions for Python libraries required by different tools can be found in the corresponding Jupyter Notebooks.
 
-Kindly brought to you by [University Library Bern](https://www.unibe.ch/university/services/university_library/ub/index_eng.html).
+Kindly brought to you by [University Library Bern](https://www.ub.unibe.ch/ub/index_eng.html).
 
 ## Background
 
-This **Digital Toolbox** is a joint project of the [Digital Scholarship Support](https://www.digitalisierung.unibe.ch/projekte/digital_scholarship) (German) and Subject Specialists of the [Library of Exact Sciences](https://www.unibe.ch/university/services/university_library/faculty_libraries/sciences/library_of_exact_sciences_bewi/index_eng.html).
+This **Digital Toolbox** is a joint project of the [Digital Scholarship Support](https://www.digitalisierung.unibe.ch/projekte/digital_scholarship) (German) and Subject Specialists of the [Sciences Libraries](https://www.ub.unibe.ch/research/fachinformationen/portal_natural_sciences/index_eng.html).
 
 ![](https://github.com/ub-unibe-ch/ds-pytools/blob/main/images/DS_en.png "Digital Scholarhip")
 

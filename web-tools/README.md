@@ -14,4 +14,4 @@ We recommend installing Python and Jupyter using the conda package manager. The 
 
 Additional installation instructions for Python libraries required by different tools can be found in the corresponding Jupyter notebooks.
 
-Kindly brought to you by [University Library Bern](https://www.unibe.ch/university/services/university_library/ub/index_eng.html).
+Kindly brought to you by [University Library Bern](https://www.ub.unibe.ch/ub/index_eng.html).
