@@ -2,9 +2,9 @@
 
 The Python Jupyer notebook [e_periodica_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-periodica-access/e_periodica_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-periodica](https://www.e-periodica.ch/)**, the platform for digitized and digital journals from Switzerland. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-periodica service for retrieving metadata in different formats, and the e-periodica website in addition for downloading fulltexts.
 
-**No Python available** on your machine? Use the online Jupyter notebook with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/HEAD?filepath=web-tools%2Fe-periodica-access%2Fe_periodica_metadata_fulltext.ipynb)
+**No Python available** on your machine? Use the online Jupyter notebook with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/k-woitas/e-periodica-access/HEAD?filepath=e_periodica_metadata_fulltext.ipynb)
 
-Also, a **static version** of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-periodica-access/e_periodica_metadata_fulltext.ipynb).
+Also, a **static version** of the notebook is available via [Jupyter nbviewer](https://nbviewer.jupyter.org/github/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-periodica-access/e_periodica_metadata_fulltext.ipynb?flush_cache=true).
 
 The notebook consists of four parts:
 
@@ -15,7 +15,7 @@ The notebook consists of four parts:
 
 You may start from the beginning and walk trough the whole notebook or jump to the section that suits you. Also, it's a good idea to play around with the code in the cells and see what happens. Have fun!
 
-Have any comments, questions and the like? Try kathi.woitas[at]ub.unibe.ch.
+Have any comments, questions and the like? Try kathi.woitas[at]unibe.ch.
 
 ## 0. Introduction
 
@@ -94,6 +94,40 @@ The chapter defines the following functions:
     
     Parameter:
     * pdf_path = The path of the PDF file to be read.
+    
+- **read_pdf(pdf_path)**:
+    
+    Extracts the raw text of a PDF formatted file and prints it.
+    Omits the first page of the PDF file, which is a cover sheet and not part of the article's genuine text.
+    Uses *pdfplumber* library.
+    
+    Parameters:
+    * pdf_path = The path of the PDF file to be read. 
+    
+- **pdf_to_txt(pdf_path)**:
+   
+    Extracts the raw text of a PDF formatted file and writes it into a TXT file of the same name (with
+    '.txt' file extension respectively).
+    Omits the first page of the PDF file, which is a cover sheet and not part of the article's genuine text.
+    Uses *pdfplumber* library.
+    
+    Parameters:
+    * pdf_path = The path of the PDF file to be read.   
+
+- **read_pdf_tika(pdf_path)**:
+    
+    Extracts the raw text of a PDF formatted file with [Apache Tika](https://tika.apache.org/) and prints it.
+    
+    Parameters:
+    * pdf_path = The path of the PDF file to be read.   
+    
+- **pdf_to_txt_tika(pdf_path)**:
+    
+    Extracts the raw text of a PDF formatted file with [Apache Tika](https://tika.apache.org/) and writes it into a
+    TXT file of the same name (with '.txt' file extension respectively).
+    
+    Parameters:
+    * pdf_path = The path of the PDF file to be read.   
 
 - **retrieve_set_fulltexts(Set, foldername, max_fulltext=20)**:
     

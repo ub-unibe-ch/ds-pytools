@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><html><body><oai-pmh xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-<responsedate>2021-06-04T10:02:32Z</responsedate>
+<responsedate>2021-06-23T14:49:02Z</responsedate>
 <request identifier="oai:agora.ch:aip-001:1910:1::5" metadataprefix="oai_dc" verb="GetRecord">https://www.e-periodica.ch/oai/dataprovider</request>
 <getrecord>
 <record>
