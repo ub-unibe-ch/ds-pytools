@@ -73,9 +73,9 @@ Therefore, it defines the following functions:
     * foldername = name of the folder in which the records will be stored.
     * max_records = (Maximum) Number of records to retrieve. Default value is 50.
  
-## 3. Download fulltext files from e-manuscripta website
+## 3. Download fulltext files from e-periodica website
 
-Downloading e-periodica fulltetxts in PDF format can be done from the e-periodica website. When retrieving fulltext files of a given OAI set, the OAI-PMH interface will be used in addition.
+Downloading e-periodica fulltexts in PDF format can be done from the e-periodica website. When retrieving fulltext files of a given OAI set, the OAI-PMH interface will be used in addition.
 
 The chapter defines the following functions:
 
