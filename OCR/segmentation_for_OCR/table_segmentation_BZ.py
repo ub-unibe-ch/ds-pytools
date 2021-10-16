@@ -540,6 +540,8 @@ plt.show()
 
 # The final mask (**fullmask**) generated here can be used to define the coordinates of each data field based on the data position. This is a prerequisite for further data extraction procedures by means of OCR.
 
+# ---
+
 # In[ ]:
 
 
