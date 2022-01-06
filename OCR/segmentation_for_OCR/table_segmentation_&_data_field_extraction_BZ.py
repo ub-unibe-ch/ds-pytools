@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Table Segmentation for Optical Character Recognition (OCR)
+# # Table Segmentation and Data Field Extraction for Optical Character Recognition (OCR)
 
 # **Python** version: 3.7.7   
 # **OpenCV** version: 4.3.0.36   
@@ -19,14 +19,15 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
-# The exemple table is loaded and plotted:
+# The example table is loaded and plotted:
 
 # In[2]:
 
 
-img_rgb = cv2.imread("01-21-1842.png")  
+img_rgb = cv2.imread("weather_table.png")  
 
 plt.figure(figsize=(20,15))             
 plt.imshow(img_rgb, cmap="gray")
@@ -538,9 +539,68 @@ plt.imshow(masked_final, cmap='gray')
 plt.show()
 
 
-# The final mask (**fullmask**) generated here can be used to define the coordinates of each data field based on the data position. This is a prerequisite for further data extraction procedures by means of OCR.
+# The final mask (**fullmask**) generated here can be used to define the coordinates of each data field based on the data position.
 
-# ---
+# ## Extraction of the data field coordinates
+
+# As every data field is a rectangle, the data field coordinates are determined by the x- and y- coordinates of the 
+# rectangle's upper left corner (x_c, y_c), the rectangle's width (w_c) and height (h_c).
+
+# In[37]:
+
+
+contours, hierarchy = cv2.findContours(fullmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+list_of_datafields = []
+for cont in contours:
+    x_c, y_c, w_c, h_c = cv2.boundingRect(cont)
+    list_of_datafields.append([x_c, y_c, w_c, h_c])
+
+
+# The coordinates of the first 5 datafields counted from the left bottom corner of the table:
+
+# In[38]:
+
+
+list_of_datafields[0:5]
+
+
+# ## Extraction of data fields
+
+# A folder **extracted_data_fields** is generated in the current directory.
+
+# In[39]:
+
+
+current_directory = os.getcwd()
+data_directory = os.path.join(current_directory, r"extracted_data_fields")
+if not os.path.exists(data_directory):
+    os.makedirs(data_directory)
+
+
+# Using the data field coordinates, every data field in the table is extracted and saved in the folder **extracted_data_fields**.
+
+# In[40]:
+
+
+plt.figure(figsize=(60,15))
+
+for index, box in enumerate(list_of_datafields):
+
+    x = box[0]
+    y = box[1]
+    w = box[2] 
+    h = box[3]
+          
+    img = img_rgb[y:y+h, x:x+w]
+    
+    #cv2.imwrite(data_directory + "/" + "datafield_" + str(index) + ".png", img)
+        
+    plt.subplot(7,13,(91-index))
+    plt.imshow(img, cmap="gray")
+
+plt.show()
+
 
 # In[ ]:
 
