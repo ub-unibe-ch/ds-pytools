@@ -5,7 +5,7 @@ Find and mine scholarly publication data and manage references with Python tools
 This folder contains tutorials to **access APIs** of notable providers and aggregators of **scholarly publication data**.
 
 * **Crossref_API_basics**: Basic functionality of the [Crossref](https://www.crossref.org/) API using CrossrefCommons and Habanero
-* **OpenAlex_API**: Introduction to the 5 endpoints of [OpenAlex](https://docs.openalex.org/) (works, authors, institutions, venues, concepts) 
+* **OpenAlex_API**: Introduction to the 5 endpoints of the [OpenAlex](https://docs.openalex.org/) API: works, authors, institutions, venues, concepts 
 
 Use the **interactive, online Binder** versions without installing Python:
 * Crossref_API_basics [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/main?labpath=Literature_handling%2FCrossref_API_basics.ipynb)
