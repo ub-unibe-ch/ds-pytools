@@ -1,8 +1,6 @@
 # Python Toolbox: Web-Tools
 
-some tools for automated web-scraping, accessing APIs and downloading web content in Python
-
-	WORK IN PROGRESS
+...some tools for automated web-scraping, accessing APIs and downloading web content in Python...
 
 This folder contains examples of how to solve various problems in retrieving web content using Python libraries.
 
