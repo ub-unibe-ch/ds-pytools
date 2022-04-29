@@ -8,6 +8,7 @@ This folder contains tutorials to **access APIs** of notable providers and aggre
 * **OpenAlex_API**: Introduction to the 5 endpoints of [OpenAlex](https://docs.openalex.org/) (works, authors, institutions, venues, concepts) 
 
 Use the **interactive, online Binder** versions without installing Python:
+* Crossref_API_basics [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/main?labpath=Literature_handling%2FCrossref_API_basics.ipynb)
 * OpenAlex_API [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ub-unibe-ch/ds-pytools/main?labpath=Literature_handling%2FOpenAlex_API.ipynb)
 
 The tutorials are presented as [Jupyter notebooks](http://jupyter.org). Installation instructions for Python libraries required by different tools can be found in the corresponding Jupyter notebooks.
