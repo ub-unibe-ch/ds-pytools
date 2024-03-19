@@ -1,0 +1,180 @@
+#Einführung in die SRU-API von Alma
+
+**S**earch/**R**etrieve via **U**RL (**SRU**) ist ein Protokoll für Suchanfragen im Internet mittels CQL - man kann also in einem Browser direkt über eine URL eine Katalog-Abfrage machen ohne eine GUI (z.B. swisscovery).
+
+Beispiel:
+
+https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.title=bakunin
+
+#Search/Retrieve via URL (SRU)
+
+SRU ist ein Standard für Suchanfragen in Form von URLs. Er wurde von der Library of Congress (http://www.loc.gov/standards/sru/) als Weiterentwicklung des Z39.50-Protokolls veröffentlicht. Die dazugehörigen Techniken basieren auf etablierten Internet-Standards wie URI, XML und HTML, welche über das Bibliothekswesen hinaus verbreitet sind. 
+
+Ein Server stellt die SRU-Schnitttstelle für die Suche zur Verfügung, während ein Client die Suchanfragen an den Server schickt, die Antworten entgegennimmt und sie aufbereitet. Die Anfragen werden in der Retrievalsprache CQL (**C**ontextual **Q**uery **L**anguage) formuliert und die Ergebnisse in einem definierten XML-Format zurückgeliefert.
+
+Die SRU-API in Alma ist für die Integration der Alma-Suche mit anderen Systemen vorgesehen (z.B. für die Fremddatenübernahme oder die Fernleihe) und nicht für Massenexport von Metadaten, weshalb maximal 10'000 Titelaufnahmen pro Suche ausgegeben werden.
+
+Anwendungsbeispiele:
+
+* Meta-Suchportale wie KVK, Archives Online
+* Suche im Katalog über Literaturverwaltungssysteme
+* Fremddatenübernahme
+
+Da SRU für die Interaktion mit anderen Systemen konzipiert ist, werden standardmässig nur die ersten zehn MARCXML-Titeldatensätze im Browser angezeigt. Um das MARCXML als Datei herunterzuladen, kann dies entweder mit cURL gemacht werden oder man speichert die Webseite im Browser ab und importiert und bearbeitet es dann z.B. in Excel. Um das MARCXML auszuwerten und nur gewisse Felder / Unterfelder aus den MARC-Datensätzen herauszuholen, wird es am besten direkt mit einem Program heruntergeladen und bearbeitet - hier mit Python.
+
+#MARCXML
+
+XML (eXtensibleMarkupLanguage, dt. erweiterbare Auszeichnungssprache) ist eine Auszeichnungssprache zur Darstellung hierarchisch strukturierter Daten im Format einer Textdatei, die sowohl von Menschen als auch von Maschinen lesbar ist. 
+XML wird auch für den plattform- und implementationsunabhängigen Austausch von Daten zwischen Computersystemen eingesetzt, insbesondere über das Internet, und wurde 1998 vom World Wide Web Consortium (W3C) veröffentlicht.
+
+MARCXML ist ein XML-Schema, welches auf MARC21-Standards beruht. Es wurde von der Library of Congress entwickelt, um den Austausch und den Netzwerkzugang bibliographischer Informationen zu erleichtern.
+MARCXML ist besser maschinell verarbeitbar als MARC, aber trotzdem noch lesbar durch Menschen.
+
+Beispiel: [Michael Bakunin und die Anarchie](https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&query=alma.mms_id==991122558799705501) 
+
+MARCXML-Dokumentation (Library of Congress): https://www.loc.gov/standards/marcxml//
+
+# Alma SRU-API
+
+Sobald SRU in Alma freigeschaltet ist, können die zwei Grundoperationen explain und searchRetrieve ausgeführt werden.
+
+Die Basis-URL für SRU-Abfragen ist: **https://[Alma domain]/view/sru/[institution code]**
+
+* Basis-URL für die Networkzone: https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK 
+* Basis-URL für die IZ UBE: https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE 
+
+Über die SRU in der IZ können auch lokale Daten/Codes abgefragt werden. Zusätzlich erhält man Bestandesdaten, resp. Verfügbarkeitsinformationen in den Feldern AVA (physical availability), AVE (electronic availability) und AVD (digital availability).
+
+Dokumentation Alma SRU-API
+
+* exLibris developers network: https://developers.exlibrisgroup.com/alma/integrations/sru/
+* exLibris KnowledgeCenter: [SRU/SRW Search](https://knowledge.exlibrisgroup.com/Alma/Product_Documentation/010Alma_Online_Help_(English)/090Integrations_with_External_Systems/030Resource_Management/190SRU_SRW_Search)
+* SLSPhere: [SRU / Z39.50](https://slsp.atlassian.net/wiki/spaces/PSI/pages/77530997/SRU+Z39.50)
+
+Alternativ kann auch in anderen Bibbliotheksdatenbanken gesucht werden, welche die Alma-SRU unterstützen, z.B. in
+
+* DNB: https://services.dnb.de/sru/dnb
+* ZDB: https://services.dnb.de/sru/zdb
+* ÖBV: https://services.obvsg.at/sru/OBV-LIT
+
+##Explain
+
+Die Explain-Funktion ist eine Selbstbeschreibung im XML-Standardformat:
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=explain 
+
+resp. 
+
+https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=explain 
+
+Neben Informationen zum Katalog (/Datenbank) und den möglichen Dateiformaten der Ausgabedatei, besteht der Hauptteil des erhaltenen XML aus den durchsuchbaren Indizes, welche den indexierten Feldern der erweiterten Suche in Alma entsprechen.
+
+Sortierbare Indizes erkannt man an einem sort=\true\, in Alma sind das Creator, Publication Year und Title.
+
+Auf die Relationen (=, ==, <, …) wird im Abschnitt CQL eingegangen.
+
+##searchRetrieve
+
+Die Operation searchRetrieve ist aus mehreren Parametern aufgebaut.
+ 
+Verpflichtende Parameter
+*   version: Die SRU-Version (für SLSP-Alma version=1.2)
+*   operation: Immer searchRetrieve
+*   query: Die Suchanfrage in CQL, d.h. Index und Suchbegriff und Operator
+
+Optionale Parameter
+
+*   recordPacking: normalerweise XML (Default)
+*   recordSchema: das gewünschte Metadatenformat (Default: MARCXML)
+*   startRecord: ab welcher Aufnahme aus einer Trefferliste Resultate ausgegeben werden sollen
+*   maximumRecords: Anzahl Aufnahmen, die ausgegeben werden sollen
+
+Bsp.1: Suche in der NZ nach Aufnahmen mit dem Stichwort Bakunin im Titel: 
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&query=alma.title=bakunin 
+ 
+Bsp.2: Suche in der IZ UBE nach Aufnahmen mit einem lokalen Feld 990=bbggr: 
+
+https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.local_field_990=bbggr
+
+In der Query können alle Indizes mit den Booleschen Operatoren „and“, „not“ und „or“ kombiniert werden.
+
+Eine Sortierung ist nur für die Indizes Creator, Publication Year und Title möglich (siehe explain >>> sort=\true\) durch anfügen von sort.descending oder sort.ascending.
+
+Bsp.3: Suche mit zwei Suchbegriffen in unterschiedlichen Indizes und Sortierung:
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.title%20all%20architektur%20and%20alma.creator%20all%20meier%20sortBy%20alma.creator/sort.ascending 
+
+##SRU Beispiel-Queries
+
+Wird kein Index in der SRU-Anfrage angegeben, wird die Anfrage an den umfangreichsten Index des ausgewählten Katalogs geleitet (Fallback).
+
+### Suche in allen Feldern
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=bakunin
+
+### Suche nach mehreren Wörtern in allen Feldern
+(\basel zürich genève\)
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui%20all%20%22basel%20z%C3%BCrich%20gen%C3%A8ve%22&maximumRecords=50
+
+### Suche nach einer alten Systemnummer in 035 
+(Achtung == verwenden wegen Bindestrichen!)
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.other_system_number_active_035==(IDSBB)007000000DSV01 
+
+### Suche nach Zweigstellen
+Hier kann nicht der Zweigstellencode verwendet werden, sondern es braucht eine spezielle ID, mit welcher in der alma.holding_Library gesucht werden kann. Diese ID finden sich in der Tabelle [SLSP_3R_LibraryIDs-for-SRU_20200202_bma.xlsx](https://slsp.atlassian.net/wiki/download/attachments/77530997/SLSP_3R_LibraryIDs-for-SRU_20200202_bma.xlsx?version=1&modificationDate=1612354566914&cacheVersion=1&api=v2)
+
+z.B. \112063980005511\ für B412
+
+https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.holding_Library=112063980005511
+
+### Suche nach speziellen Formaten
+Im Index alma.mms_material_type kann nach folgenden Werten gesucht werden:
+*\tBK (Books, e-books, manuscripts)
+*\tCF (Computer programs)
+*\tCR (Serials)
+*\tMP (Maps and other cartographic materials)
+*\tMX (Mixed media)
+*\tMU (Sheet music and audio recordings)
+*\tVM (Images and physical objects)
+
+https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?recordSchema=dc&operation=searchRetrieve&version=1.2&query=alma.mms_material_type=CF
+
+### Grosse Treffermengen
+Das SRU-Interface gibt pro Abfrage maximal 50 Treffer zurück (Modifikator maximumRecords=50). Gibt es mehr Treffer, können über den Modifikator startRecord=51 die nächsten 50 Treffer geholt werden etc.
+
+https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=history&maximumRecords=50&startRecord=51 
+
+Dasselbe Prinzip wird auch bei Auswertung mit Python verwendet.
+
+### Unterdrückte Aufnahmen
+Defaultmässig gibt eine SRU-Abfrage auch unterdrückte Aufnahmen zurück. Dies kann verhindert werden, indem die Suche mit einem Modifikator alma.mms_tagSuppressed=false ergänzt wird.
+
+# Common Query Language (CQL)
+
+Queries werden mit CQL formuliert. Mehrere Indizes können dabei mit Booleschen Operatoren kombiniert werden.
+Dokumentation CQL: http://www.loc.gov/standards/sru/cql/index.html
+
+Jede Query besteht aus den drei Komponenten: Index, Relation und Suchbegriff. Die möglichen Relationen sind im explain jeweils pro Index aufgelistet. 
+Siehe auch Abschnitt Relations: https://www.loc.gov/standards/sru/cql/contextSets/theCqlContextSet.html
+
+CQL ermöglicht grundsätzlich zwei verschiedene Sucheingaben. Werden mehrere Suchwörter in beliebiger Reihenfolge gesucht, erfolgt die Eingabe mit all (Index all Suchwörter). Wird eine genaue Phrase gesucht, erfolgt die Eingabe mit = (Index=Phrase), das heißt, dass alle Suchwörter in exakt dieser Reihenfolge in den Treffern vorkommen.
+
+•\t Für gewisse Indizes (numerisch, mit Daten oder Bereichen) können folgende Vergleiche (Relationen) verwendet werden:
+*   **<**  kleiner
+*   **>**  grösser
+*   **<=** kleiner gleich 
+*   **>=** grösser gleich
+*   **==** exakt gleich
+*   **<>** nicht gleich
+
+•\tDer Asterisk &ast; kann im Zusammenhang mit dem all-Operator als Wildcard für eine beliebige Anzahl von Zeichen eingesetzt werden. Der &ast; muss ohne Leerschlag direkt an den Suchbegriff angefügt werden.
+
+•\tFür leere Felder wird nach ==\\ gesucht, z.B. alma.title==\\ findet Aufnahmen mit leeren 245$a.
+
+•\tEnthält ein Suchbegriff einen Gedankenstrich oder einen Underscore muss == verwendet werden.
+
+•\tWenn Suchbegriffe eines der Zeichen < > = / ( ) oder einen Leerschlag enthalten, müssen sie in \\ eingeschlossen werden.
+
+Gegebenenfalls müssen weitere Zeichen gemäss [URL-Kodierung](https://de.wikipedia.org/wiki/URL-Encoding) umgewandelt werden. Leerzeichen zum Beispiel vor und nach booleschen Operatoren sind je nach Client mit \%20\ (z.B. \KRAFTWERK%20not%20ROBOTER\) zu ersetzen.
