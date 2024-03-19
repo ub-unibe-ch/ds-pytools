@@ -1,0 +1,8 @@
+#Einführung in die SRU-API von Alma
+
+**S**earch/**R**etrieve via **U**RL (**SRU**) ist ein Protokoll für Suchanfragen im Internet mittels CQL - man kann also in einem Browser direkt über eine URL eine Katalog-Abfrage machen ohne eine GUI (z.B. swisscovery).
+
+Beispiel:
+
+[https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.title=bakunin](https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.title=bakunin)
+
