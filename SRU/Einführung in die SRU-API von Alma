@@ -1,4 +1,4 @@
-#Einführung in die SRU-API von Alma
+# Einführung in die SRU-API von Alma
 
 **S**earch/**R**etrieve via **U**RL (**SRU**) ist ein Protokoll für Suchanfragen im Internet mittels CQL - man kann also in einem Browser direkt über eine URL eine Katalog-Abfrage machen ohne eine GUI (z.B. swisscovery).
 
@@ -6,7 +6,7 @@ Beispiel:
 
 https://slsp-ube.alma.exlibrisgroup.com/view/sru/41SLSP_UBE?version=1.2&operation=searchRetrieve&query=alma.title=bakunin
 
-#Search/Retrieve via URL (SRU)
+# Search/Retrieve via URL (SRU)
 
 SRU ist ein Standard für Suchanfragen in Form von URLs. Er wurde von der Library of Congress (http://www.loc.gov/standards/sru/) als Weiterentwicklung des Z39.50-Protokolls veröffentlicht. Die dazugehörigen Techniken basieren auf etablierten Internet-Standards wie URI, XML und HTML, welche über das Bibliothekswesen hinaus verbreitet sind. 
 
@@ -22,7 +22,7 @@ Anwendungsbeispiele:
 
 Da SRU für die Interaktion mit anderen Systemen konzipiert ist, werden standardmässig nur die ersten zehn MARCXML-Titeldatensätze im Browser angezeigt. Um das MARCXML als Datei herunterzuladen, kann dies entweder mit cURL gemacht werden oder man speichert die Webseite im Browser ab und importiert und bearbeitet es dann z.B. in Excel. Um das MARCXML auszuwerten und nur gewisse Felder / Unterfelder aus den MARC-Datensätzen herauszuholen, wird es am besten direkt mit einem Program heruntergeladen und bearbeitet - hier mit Python.
 
-#MARCXML
+# MARCXML
 
 XML (eXtensibleMarkupLanguage, dt. erweiterbare Auszeichnungssprache) ist eine Auszeichnungssprache zur Darstellung hierarchisch strukturierter Daten im Format einer Textdatei, die sowohl von Menschen als auch von Maschinen lesbar ist. 
 XML wird auch für den plattform- und implementationsunabhängigen Austausch von Daten zwischen Computersystemen eingesetzt, insbesondere über das Internet, und wurde 1998 vom World Wide Web Consortium (W3C) veröffentlicht.
@@ -105,7 +105,7 @@ Bsp.3: Suche mit zwei Suchbegriffen in unterschiedlichen Indizes und Sortierung:
 
 https://slsp-network.alma.exlibrisgroup.com/view/sru/41SLSP_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.title%20all%20architektur%20and%20alma.creator%20all%20meier%20sortBy%20alma.creator/sort.ascending 
 
-##SRU Beispiel-Queries
+## SRU Beispiel-Queries
 
 Wird kein Index in der SRU-Anfrage angegeben, wird die Anfrage an den umfangreichsten Index des ausgewählten Katalogs geleitet (Fallback).
 
