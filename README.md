@@ -2,7 +2,6 @@
 
 simple tools for data handling and analysis in Python
 
-	WORK IN PROGRESS
 
 This repository contains examples of how to solve various data analysis problems using Python libraries.
 
