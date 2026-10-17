@@ -1,0 +1,45 @@
+# Keeps browser-tools/erara-explorer in sync with the leading repository k-woitas/erara-explorer.
+# Runs weekly and on demand; opens a pull request when the source has changed.
+# Requires: Settings → Actions → General → «Allow GitHub Actions to create and approve pull requests».
+name: Sync erara-explorer
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"   # Mondays, 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch source repository
+        run: git clone --depth 1 https://github.com/k-woitas/erara-explorer.git "$RUNNER_TEMP/src"
+
+      - name: Copy files
+        run: |
+          dest=browser-tools/erara-explorer
+          mkdir -p "$dest/de"
+          cp "$RUNNER_TEMP/src/index.html" "$dest/index.html"
+          cp "$RUNNER_TEMP/src/de/index.html" "$dest/de/index.html"
+          cp "$RUNNER_TEMP/src/LICENSE" "$dest/LICENSE"
+          echo "SRC_SHA=$(git -C "$RUNNER_TEMP/src" rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+      - name: Open pull request if changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: sync/erara-explorer
+          delete-branch: true
+          add-paths: browser-tools/erara-explorer
+          commit-message: "Sync erara-explorer from k-woitas/erara-explorer@${{ env.SRC_SHA }}"
+          title: "Sync erara-explorer (k-woitas/erara-explorer@${{ env.SRC_SHA }})"
+          body: |
+            Automatic update of `browser-tools/erara-explorer` from the leading repository
+            [k-woitas/erara-explorer](https://github.com/k-woitas/erara-explorer/commit/${{ env.SRC_SHA }}).
+
+            Only `index.html`, `de/index.html` and `LICENSE` are copied; the README in this folder is maintained here.
