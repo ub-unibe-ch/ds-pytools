@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Tool e-rara &amp; e-manuscripta</title>
+<!--
+  ======================================================================
+  API Tool e-rara & e-manuscripta
+  Metadata, full texts, entities and more
+  ======================================================================
+
+  WHAT IS THIS PAGE FOR?
+  e-rara.ch (printed works) and e-manuscripta.ch (manuscripts) make a large
+  number of digitised books, maps and manuscripts from Swiss libraries
+  freely available. Besides viewing them in the browser, both platforms
+  offer open interfaces (OAI-PMH, IIIF, full-text download) for research
+  and teaching. This page makes these interfaces usable without any
+  programming knowledge: fill in the form, choose the content, download.
+
+  WHAT CAN IT DO?
+  - Title:      Look up a work by VLID, DOI or link and download
+                everything at once: metadata (XML, JSON, CSV), RIS for
+                reference managers, full text (plain text or ALTO XML),
+                recognised persons, places and topics with GND links
+                (entities), PDF, IIIF manifest and all page images.
+  - Pages:      Single pages or page ranges (e.g. «30-35») as text, ALTO
+                or image – with selectable size, region, rotation and
+                colour.
+  - Collection: Query entire collections (sets) or time periods and
+                download them as a table (CSV), JSON or XML – optionally
+                with the full texts and entities of all titles.
+                Entities and complete full texts per title are offered by
+                e-rara only; for e-manuscripta, full texts are available
+                page by page under «Pages».
+  - Platform:   Interface details, available metadata formats and an
+                overview of all collections.
+
+  HOW DO I USE IT?
+  Open the page online at https://k-woitas.github.io/erara-explorer/ or
+  open this file in your browser (double-click) – no installation, no
+  account. Choose e-rara or e-manuscripta with «Platform» in the header.
+  All requests go directly from your own browser to e-rara or
+  e-manuscripta; no data is passed on to third parties. The only exception
+  is a CORS proxy you enter yourself (see below).
+
+  GOOD TO KNOW
+  Full texts, entities, IIIF manifests and images work right away. For
+  security reasons, the platforms do not allow metadata requests via
+  OAI-PMH, RIS and PDF directly from a web page: by default these appear
+  as direct links. If you want to harvest collections or convert metadata
+  into a table, enter a CORS proxy under «Settings» (instructions:
+  https://github.com/k-woitas/erara-explorer/blob/main/PROXY.md).
+
+  Terms of use for the content: https://www.e-rara.ch/wiki/termsOfUse or https://www.e-manuscripta.ch/wiki/termsOfUse
+  or the rights statement in the respective record.
+  Interface documentation: https://www.e-rara.ch/wiki/apiinfo or https://www.e-manuscripta.ch/wiki/apiinfo.
+
+  WHO CREATED IT?
+  University Library Bern, Digital Scholarship
+  https://www.ub.unibe.ch/services/digital_scholarship/index_eng.html
+  Developed with the support of Claude (Anthropic). As of: October 2026.
+  Questions, suggestions and bug reports: via the «Contact» link on the page.
+  ======================================================================
+-->
+<style>
+/* Styling based on the UB Bern design: white, black, UB red #E4003C, grey #575756, link colour #203A5D, Arial */
+:root{--bg:#f5f5f4;--card:#fff;--fg:#000;--muted:#575756;--line:#d9d9d6;--acc:#E4003C;--acc-fg:#fff;--link:#203A5D;--ok:#1e6b3a;--err:#b0002e;--warn:#7a4f00;--warnbg:#fff6e0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1b1d;--card:#252528;--fg:#f2f2f2;--muted:#b4b4b2;--line:#3d3d42;--acc:#ff5c7f;--acc-fg:#111;--link:#9fb7dc;--ok:#7fd29a;--err:#ff8b8b;--warn:#f0c060;--warnbg:#2d2614}}
+:root[data-theme="dark"]{--bg:#1b1b1d;--card:#252528;--fg:#f2f2f2;--muted:#b4b4b2;--line:#3d3d42;--acc:#ff5c7f;--acc-fg:#111;--link:#9fb7dc;--ok:#7fd29a;--err:#ff8b8b;--warn:#f0c060;--warnbg:#2d2614}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 Arial,Helvetica,sans-serif}
+/* Title bar: fixed, always white (logo), red accent stripe */
+.top{position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.10)}
+header{background:#fff;color:#000;border-bottom:4px solid #E4003C;padding:10px 20px;display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center}
+header h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.2px}header p{margin:2px 0 0;color:#575756;font-size:13px}
+header .plat{justify-self:center;margin:0;color:#000;font-weight:600}
+header .plat select{background:#fff;color:#000;border:1px solid #b9b9b6;font-weight:400}
+header .brand{justify-self:end}header .logo{display:flex;align-items:center;text-decoration:none}
+header .logo img{height:76px;width:auto;display:block}
+@media (max-width:700px){header{grid-template-columns:1fr auto;padding:8px 16px;gap:6px 12px}header .plat{grid-column:1/-1;grid-row:2;justify-self:start}header h1{font-size:17px}header p{display:none}header .logo img{height:52px}}
+nav{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--card);overflow-x:auto}
+nav a{padding:10px 14px;color:var(--fg);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer}
+nav a.on{border-color:var(--acc);font-weight:700}nav .ubline{margin-left:auto;align-self:center;padding-left:16px;font-size:13px;color:var(--muted);white-space:nowrap}nav .ubline a{display:inline;padding:0;border:0;color:var(--link);text-decoration:underline}nav .ubline .sep{margin:0 6px;color:var(--line)}
+@media (max-width:700px){nav{flex-wrap:wrap;padding:0 8px;gap:0}nav a{padding:10px 6px;font-size:14px}nav .ubline{flex-basis:100%;margin-left:0;padding:0 6px 8px;font-size:12px}}
+main{max-width:980px;margin:0 auto;padding:20px 16px}
+section[data-tab]{display:none}section[data-tab].on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:17px}h3{font-size:15px;margin:14px 0 6px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 12px}
+fieldset{border:1px solid var(--line);border-radius:6px;margin:0 0 14px;padding:10px 14px;min-width:0}
+legend{font-weight:600;padding:0 6px;font-size:14px}
+label{display:inline-flex;align-items:center;gap:6px;margin:4px 16px 4px 0;max-width:100%;flex-wrap:wrap}
+label.block{display:block}.iiif-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px}@media (max-width:600px){.iiif-grid{grid-template-columns:1fr}}.iiif-grid .opt>b{display:block;font-size:14px;margin-bottom:4px}.iiif-grid select,.iiif-grid input[type=text]{width:100%}.iiif-grid .opt .hint{margin:4px 0 0}.iiif-grid .custom{margin-top:6px}.iiif-sum{margin:12px 0 0;font-size:13px;color:var(--muted)}.iiif-sum code{color:var(--fg);overflow-wrap:anywhere}.period{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px;margin:4px 0}.period>span{margin-right:12px}.period select+select{margin-left:4px}label:has(> input[type=checkbox]){flex-wrap:nowrap;align-items:flex-start}label:has(> input[type=checkbox]) input{margin-top:4px}label.dis{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2px 16px}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:4px 16px}
+@media (max-width:600px){.grid2{grid-template-columns:1fr}}
+input[type=text],input[type=password],input[type=number],input[type=date],select{padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--fg);font:inherit;max-width:100%}
+input.wide,select.wide{width:100%}
+button{padding:9px 16px;border:0;border-radius:5px;background:var(--acc);color:var(--acc-fg);font:inherit;font-weight:600;cursor:pointer;margin:4px 8px 4px 0}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button:disabled{opacity:.5;cursor:wait}
+.msg{padding:10px 14px;border-radius:6px;margin:10px 0;border:1px solid var(--line)}
+.msg.err{color:var(--err);border-color:var(--err)}
+.msg.ok{color:var(--ok);border-color:var(--ok)}
+.msg.warn{color:var(--warn);border-color:var(--warn);background:var(--warnbg)}
+.preview{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}.preview>*{min-width:0}
+.preview img{max-width:min(220px,100%);height:auto;border:1px solid var(--line);border-radius:4px}
+.preview img.big{max-width:min(420px,100%)}
+dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;flex:1}
+dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}td{overflow-wrap:anywhere}
+.tablewrap{overflow-x:auto;margin:8px 0}.tablewrap table{font-size:13px;min-width:640px}
+details.guide{margin:10px 0 4px}details.guide summary{cursor:pointer;color:var(--acc);font-weight:600}
+code{font-size:13px}a{color:var(--link)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:10px 12px;font-size:14px;max-height:420px;overflow:auto}
+.badge{font-size:11px;padding:1px 6px;border-radius:9px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.p{border-color:var(--warn);color:var(--warn)}
+progress{width:100%;height:14px}
+ul.links{margin:6px 0;padding-left:20px}
+</style>
+</head>
+<body>
+<div class="top">
+<header>
+  <div><h1>API Tool e-rara &amp; e-manuscripta</h1><p>Metadata, full texts, entities and more</p></div>
+  <label class="plat">Platform <select id="platform"><option value="e-rara">e-rara</option><option value="e-manuscripta">e-manuscripta</option></select></label>
+  <div class="brand">
+    <a class="logo" href="https://www.ub.unibe.ch/" target="_blank" rel="noopener" title="University Library Bern">
+    <img src="data:image/png;base64,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" alt="Logo University of Bern">
+  </a>
+  </div>
+</header>
+<nav id="nav">
+  <a data-go="title">Title</a><a data-go="pages">Pages</a><a data-go="collection">Collection</a><a data-go="repo">Platform</a><a data-go="settings">Settings</a>
+  <span class="ubline"><a href="de/index.html" hreflang="de-CH" lang="de-CH">Deutsch</a><span class="sep">|</span>University Library Bern<span class="sep">|</span><a href="https://www.ub.unibe.ch/services/digital_scholarship/index_eng.html" target="_blank" rel="noopener">Contact</a></span>
+</nav>
+</div>
+<main>
+<div id="proxyinfo"></div>
+
+<!-- ======================= TITLE ======================= -->
+<section data-tab="title">
+<div id="t-out"></div>
+<div class="card"><h2>Download a title</h2>
+<p class="hint">One input for all downloads of a work: VLID (<code class="ex-vlid"></code>), <span class="pn"></span> link or DOI
+(<code class="ex-doi"></code>). One selection gives a single file, several give a ZIP.
+<span class="pn"></span> blocks content marked <span class="badge p">Proxy</span> for browser scripts; without a proxy it appears as direct links.</p>
+<form id="t-form">
+<fieldset><legend>Work</legend><input class="wide" type="text" name="ref" required placeholder="VLID, DOI or link"></fieldset>
+<fieldset><legend>Content</legend><div class="grid" id="t-items"></div></fieldset>
+<fieldset><legend>Options</legend>
+<label>Metadata format <select name="format" id="t-format"></select></label>
+<label>Image size <select name="size"><option value="300,">small (300 px)</option><option value="1000," selected>medium (1000 px)</option><option value="2000,">large (2000 px)</option><option value="full">original</option></select></label>
+<p class="hint">The metadata format applies to XML, JSON and CSV. Without a proxy, JSON and CSV are taken from the catalogue data in the IIIF manifest (title, author, imprint, extent, holding institution, DOI); with a proxy, from Dublin Core or MODS.</p>
+<div class="guidebox"></div>
+</fieldset>
+<button type="submit" name="do" value="show" class="sec">Show</button><button type="submit" name="do" value="download">Download</button>
+</form></div>
+</section>
+
+<!-- ======================= PAGES ======================= -->
+<section data-tab="pages">
+<div id="s-out"></div>
+<div class="card"><h2>Pages</h2>
+<p class="hint">Either <b>work + image number(s)</b> – the work as VLID, DOI or link, image numbers such as <code>30</code>,
+<code>1-3, 30-35</code> or <code>all</code> – or just a <b>page VLID</b> or a link from the page view.
+The image number counts the digitised images from 1 and usually differs from the printed page number. All functions in this section work without a proxy.</p>
+<form id="s-form">
+<fieldset><legend>Selection</legend><div class="grid2">
+<label class="block">Work or page<br><input class="wide" type="text" name="ref" id="s-ref" required placeholder=""></label>
+<label class="block">Image number(s)<br><input class="wide" type="text" name="pages" placeholder="e.g. 30 or 1-3,30"></label>
+</div></fieldset>
+<fieldset class="iiif"><legend>Image options (for preview and «Image(s)»)</legend>
+<div class="iiif-grid">
+<div class="opt"><b>Image size</b><select name="isize"><option value="1000," selected>Screen – 1000 px wide</option><option value="300,">Preview – 300 px wide</option><option value="2000,">Print – 2000 px wide</option><option value="max">Full resolution of the digitised image</option><option value="pct:50">Half the original size (50 %)</option><option value="!1200,1200">At most 1200 × 1200 px</option><option value="custom">Custom …</option></select>
+<div class="custom" hidden><input type="text" name="isize_c" value="" placeholder="e.g. 800, · ,600 · pct:25 · !500,500"></div>
+<p class="hint">Width in pixels; the height follows from the aspect ratio. «Full resolution» gives the largest file.</p></div>
+<div class="opt"><b>Region</b><select name="region"><option value="full" selected>Whole page</option><option value="pct:0,0,100,50">Top half</option><option value="pct:0,50,100,50">Bottom half</option><option value="pct:0,0,50,100">Left half</option><option value="pct:50,0,50,100">Right half</option><option value="square">Square from the centre</option><option value="custom">Custom region …</option></select>
+<div class="custom" hidden><input type="text" name="region_c" value="" placeholder="x,y,width,height – e.g. 0,0,1000,800 · pct:10,10,80,80"></div>
+<p class="hint">Which part of the page is returned; the image size then refers to this region.</p></div>
+<div class="opt"><b>Rotation</b><select name="rotation"><option value="0" selected>None</option><option value="90">90° clockwise</option><option value="180">180° (upside down)</option><option value="270">90° anticlockwise</option></select>
+<label style="margin:6px 0 0"><input type="checkbox" name="mirror" value="1"> Mirror (left ↔ right)</label>
+<p class="hint">Mirroring is applied before rotation.</p></div>
+<div class="opt"><b>Colour</b><select name="quality"><option value="default" selected>Colour (as original)</option><option value="gray">Greyscale</option><option value="bitonal">Black and white</option></select>
+<p class="hint">Greyscale and black and white produce smaller files and are well suited to printing and text recognition.</p></div>
+</div>
+<p class="iiif-sum">IIIF request: <code class="iiif-url"></code> · Format always JPEG (<span class="pn"></span> only delivers JPEG) ·
+Parameters as per <a href="https://iiif.io/api/image/2.0/#image-request-parameters" target="_blank" rel="noopener">IIIF Image API 2.0</a></p>
+</fieldset>
+<button type="submit" name="do" value="show" class="sec">Preview</button>
+<button type="submit" name="do" value="text">Text</button>
+<button type="submit" name="do" value="image">Image(s)</button>
+<button type="submit" name="do" value="alto">ALTO</button>
+<p class="hint" style="margin-top:10px">Several pages: text as one file with separator lines, images and ALTO as a ZIP.</p>
+</form></div>
+</section>
+
+<!-- ======================= COLLECTION ======================= -->
+<section data-tab="collection">
+<div id="c-out"></div>
+<div class="card"><h2>Harvest a collection</h2>
+<p class="hint">Metadata of a set or time period via OAI-PMH. <span class="pn"></span> returns 10 records per request;
+1000 records take about 1–2 minutes. Additional content per title increases the run time considerably.</p>
+<div id="c-need"></div>
+<form id="c-form">
+<fieldset><legend>Selection</legend>
+<div id="c-setbox" style="margin:4px 0 8px"></div>
+<label>Query format <select name="format" id="c-format"></select></label>
+<div class="period"><span>Period (added/modified)</span>
+<label>from <select name="from_y" class="yr"></select><select name="from_m" class="mo"></select></label>
+<label>until <select name="until_y" class="yr"></select><select name="until_m" class="mo"></select></label></div>
+<label>max. records <input type="number" name="max" min="1" value="100" style="width:7em"></label>
+</fieldset>
+<fieldset><legend>Output</legend><div class="grid">
+<label><input type="checkbox" name="out" value="csv" checked> CSV (table)</label>
+<label><input type="checkbox" name="out" value="json"> JSON (structured)</label>
+<label><input type="checkbox" name="out" value="xml"> XML per record (original)</label>
+<label><input type="checkbox" name="out" value="vlids"> VLID list</label>
+</div>
+<p class="hint">Rule of thumb: for a table, choose <code>oai_dc</code> (compact) or <code>mods</code> (detailed) with CSV;
+for software, JSON; for structure, files and archiving, <code>mets</code>/<code>arcmets</code> as XML.</p>
+<div class="guidebox"></div>
+</fieldset>
+<fieldset><legend>Additionally per title (optional)</legend><div class="grid" id="c-bulk"></div></fieldset>
+<button type="submit" name="do" value="count" class="sec">Check count</button>
+<button type="submit" name="do" value="harvest">Harvest and download</button>
+<button type="button" id="c-cancel" class="sec" hidden>Cancel</button>
+</form></div>
+</section>
+
+<!-- ======================= PLATFORM ======================= -->
+<section data-tab="repo"><div id="r-out"></div></section>
+
+<!-- ======================= SETTINGS ======================= -->
+<section data-tab="settings">
+<div class="card"><h2>CORS-Proxy (optional)</h2>
+<p class="hint">e-rara and e-manuscripta allow browser scripts to access full texts, entities and IIIF, but not
+OAI-PMH, RIS, PDF or DOI resolution. A CORS proxy forwards such requests and thereby enables
+harvesting, platform details and the conversion of Dublin Core/MODS into CSV/JSON.</p>
+<form id="p-form">
+<label class="block">Proxy address<br>
+<span style="display:flex;gap:8px;align-items:center">
+<input class="wide" type="password" name="proxy" id="p-proxy" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="e.g. http://localhost:8080/?url={url}">
+<button type="button" id="p-show" class="sec" aria-pressed="false" style="margin:0;white-space:nowrap">Show</button></span></label>
+<p class="hint"><code>{url}</code> is replaced by the (encoded) e-rara or e-manuscripta address; without <code>{url}</code> the address is appended.
+Public proxies see all requests and are often throttled – for regular use, run your own proxy
+(<a href="https://github.com/k-woitas/erara-explorer/blob/main/PROXY.md" target="_blank" rel="noopener">instructions</a>).</p>
+<button type="submit">Save</button><button type="button" id="p-test" class="sec">Test proxy</button><button type="button" id="p-clear" class="sec">Remove</button>
+</form><div id="p-out"></div></div>
+<div class="card"><h2>What works how?</h2><div class="tablewrap"><table>
+<tr><th>Content</th><th>without proxy</th><th>with proxy</th></tr>
+<tr><td>Full text of title/page (text, ALTO), entities (MADS, JSON, CSV), IIIF manifest, images</td><td>yes</td><td>yes</td></tr>
+<tr><td colspan="3" class="hint">e-manuscripta: no entities; full texts page by page under «Pages» only.</td></tr>
+<tr><td>Title details, preview, page selection</td><td>yes (from IIIF)</td><td>yes</td></tr>
+<tr><td>Metadata XML (oai_dc, mods, mets …), RIS, PDF</td><td>as a direct link</td><td>yes, also in the ZIP</td></tr>
+<tr><td>Metadata as JSON/CSV</td><td>simplified (from IIIF)</td><td>Dublin Core / MODS</td></tr>
+<tr><td>DOI as input</td><td>via DataCite (if reachable)</td><td>yes</td></tr>
+<tr><td>Harvest a collection, check count, platform details</td><td>no (links to the OAI interface)</td><td>yes</td></tr>
+</table></div></div>
+</section>
+</main>
+
+<script>
+"use strict";
+/* ====================================================================== *
+ *  Basics
+ * ====================================================================== */
+const PLATFORMS = {"e-rara": "https://www.e-rara.ch", "e-manuscripta": "https://www.e-manuscripta.ch"};
+/* Example identifiers shown in hints and placeholders, per platform */
+const EXAMPLES = {"e-rara": {vlid: "6341733", doi: "10.3931/e-rara-20168", page: "10.3931/e-rara-25285"},
+                  "e-manuscripta": {vlid: "1560587", doi: "10.7891/e-manuscripta-48852", page: "10.7891/e-manuscripta-48852"}};
+/* Language of this page: preferred language for IIIF labels; field names from the manifest are translated */
+const UI_LANG = "en";
+const META_LABELS = {
+  "titel": "Title", "untertitel": "Subtitle", "haupttitel": "Main title", "paralleltitel": "Parallel title", "einheitssachtitel": "Uniform title",
+  "weitere titel": "Other titles", "gesamttitel": "Series title", "titelzusatz": "Title addition",
+  "autor": "Author", "autorin": "Author", "verfasser": "Author", "verfasserin": "Author", "beteiligte": "Contributors", "beteiligter": "Contributor",
+  "mitwirkende": "Contributors", "herausgeber": "Editor", "herausgeberin": "Editor", "hrsg.": "Editor", "übersetzer": "Translator",
+  "illustrator": "Illustrator", "zeichner": "Draughtsman", "kartograph": "Cartographer", "kupferstecher": "Engraver", "stecher": "Engraver",
+  "drucker": "Printer", "verleger": "Publisher", "verlag": "Publisher", "komponist": "Composer", "schreiber": "Scribe",
+  "adressat": "Addressee", "addressat": "Addressee", "empfänger": "Recipient", "absender": "Sender", "korrespondenzpartner": "Correspondent",
+  "körperschaft": "Corporate body", "person": "Person", "erwähnte person": "Person mentioned", "erwähnte personen": "Persons mentioned",
+  "erschienen": "Published", "erscheinungsvermerk": "Imprint", "impressum": "Imprint", "veröffentlichung": "Publication",
+  "erscheinungsort": "Place of publication", "verlagsort": "Place of publication", "druckort": "Place of printing", "ort": "Place",
+  "entstehungsort": "Place of origin", "jahr": "Year", "erscheinungsjahr": "Year of publication", "datierung": "Date", "datum": "Date",
+  "entstehungszeit": "Date of origin", "entstehungsdatum": "Date of origin", "zeitraum": "Period", "ausgabe": "Edition", "auflage": "Edition",
+  "umfang": "Extent", "format": "Format", "maße": "Dimensions", "masse": "Dimensions", "abmessungen": "Dimensions", "material": "Material",
+  "beschreibstoff": "Writing material", "sprache": "Language", "schrift": "Script", "gattung": "Genre", "dokumenttyp": "Document type",
+  "typ": "Type", "medientyp": "Media type", "objekttyp": "Object type", "maßstab": "Scale", "massstab": "Scale",
+  "signatur": "Shelfmark", "besitzende institution": "Holding institution", "institution": "Institution", "bibliothek": "Library",
+  "standort": "Location", "archiv": "Archive", "sammlung": "Collection", "bestand": "Holdings", "provenienz": "Provenance", "vorbesitz": "Former owner",
+  "schlagwort": "Subject", "schlagwörter": "Subjects", "thema": "Subject", "inhalt": "Contents", "inhaltsangabe": "Summary", "zusammenfassung": "Summary",
+  "anmerkung": "Note", "anmerkungen": "Notes", "bemerkung": "Remark", "bemerkungen": "Remarks", "fussnote": "Footnote", "beschreibung": "Description",
+  "urn": "URN", "doi": "DOI", "identifikator": "Identifier", "zitierlink": "Citation link", "permalink": "Permalink", "link": "Link",
+  "quelle": "Source", "digitalisierung": "Digitisation", "digitalisat": "Digital copy", "lizenz": "Licence", "rechte": "Rights",
+  "rechteinformation": "Rights information", "rechtehinweis": "Rights statement", "nutzungsbedingungen": "Terms of use", "lizenzbedingungen": "Licence terms",
+  "enthalten in": "Contained in", "in": "In", "reihe": "Series", "serie": "Series", "band": "Volume", "teil": "Part", "heft": "Issue",
+  "übergeordnetes werk": "Parent work", "katalogeintrag": "Catalogue record", "katalog": "Catalogue",
+};
+/* Translate a German field name from the IIIF manifest; composite names («Autor, Beteiligte») part by part, unknown names stay unchanged */
+function trLabel(k) {
+  if (!k || UI_LANG !== "en") return k;
+  const one = t => {
+    const low = t.trim().toLowerCase();
+    if (META_LABELS[low]) return META_LABELS[low];
+    const m = low.match(/^(.+?)\s*\((?:en|n|e|s|innen)\)$/);   // «Adressat(en)» → «Addressee(s)»
+    return m && META_LABELS[m[1]] ? META_LABELS[m[1]] + "(s)" : null;
+  };
+  const whole = one(k); if (whole) return whole;
+  const parts = k.split(/(\s*[,;/]\s*|\s+und\s+)/);
+  const out = parts.map((p, i) => i % 2 ? (/und/.test(p) ? " and " : p) : one(p));
+  if (out.some(o => o === null)) return k;
+  return out.map((o, i) => i && i % 2 === 0 && !/^[A-Z]{2,}/.test(o) ? o.charAt(0).toLowerCase() + o.slice(1) : o).join("");
+}
+const META_FORMATS = ["oai_dc", "mods", "rawmods", "mets", "arcmets", "epicur"];
+const TABULAR_FORMATS = ["oai_dc", "mods", "rawmods", "mets", "arcmets"];
+const DC_FIELDS = ["title","creator","subject","description","publisher","contributor","date","type","format","identifier","source","language","relation","coverage","rights"];
+const NS = {oai: "http://www.openarchives.org/OAI/2.0/", dc: "http://purl.org/dc/elements/1.1/", mods: "http://www.loc.gov/mods/v3", xlink: "http://www.w3.org/1999/xlink"};
+/* Snapshot of the e-rara sets (10/2026); with a proxy, the current list is loaded. */
+const SETS_SNAPSHOT = [["collection31287959", ""], ["collection25656349", ""], ["pbaheim", "Albert Heim (1849-1937)"], ["alch", "Alchemie, Magie und Kabbala (Stiftung der Werke von C.G. Jung, Zürich)"], ["solothurn", "Alte Drucke aus Solothurn (ZB Solothurn)"], ["anatomie", "Anatomie (BPU Neuchâtel)"], ["pbawaldner", "August Waldner (1844-1906)"], ["frc_g", "BCU Fribourg (GLN)"], ["frc_r", "BCU Fribourg (RERO)"], ["lac1_g", "BCU Lausanne (GLN)"], ["lac1_r", "BCU Lausanne (RERO)"], ["pbbaretius", "Benedikt Aretius (Marti) (1522–1574)"], ["bernensia", "Bernensia des 18. bis frühen 20. Jahrhunderts (UB Bern)"], ["bibleikon", "Bibleikon (Bibliothèque des Pasteurs, BPU Neuchâtel)"], ["lg1", "Biblioteca Salita dei Frati, Lugano"], ["supsi", "Biblioteca SUPSI DFA/ASP, Locarno"], ["isra", "Bibliothek der Israelitischen Gemeinde Basel (UB Basel)"], ["mab", "Bibliothek der Musik-Akademie Basel"], ["nagezh", "Bibliothek der Naturforschenden Gesellschaft Zürich (ZB Zürich)"], ["gep_g", "Bibliothèque de Genève (GLN)"], ["gep_r", "Bibliothèque de Genève (RERO)"], ["nep_g", "Bibliothèque des Pasteurs, BPU Neuchâtel (GLN)"], ["nep_r", "Bibliothèque des Pasteurs, BPU Neuchâtel (RERO)"], ["book", "book"], ["nev_g", "BPU Neuchâtel (GLN)"], ["nev_r", "BPU Neuchâtel (RERO)"], ["pbcameier", "C. A. Meier (1905-1995)"], ["cgj", "C.G. Jung"], ["pbchartwich", "Carl Hartwich (1851-1917)"], ["cartographic", "cartographic"], ["pbcfmeyer", "Conrad Ferdinand Meyer (1825- 1898)"], ["erara", "e-rara"], ["ebs", "Eisenbibliothek Schlatt"], ["ephemera", "Ephemera"], ["zut", "ETH-Bibliothek (NEBIS)"], ["pbebircher", "Eugen Bircher (1882- 1956)"], ["flug", "Flugschriften"], ["fondo", "Fondo Gianini (Biblioteca SUPSI DFA, Locarno)"], ["pbfmedicus", "Fritz Medicus (1876-1956)"], ["fulltome", "fulltome"], ["brochgenevoises", "Genfer Broschüren"], ["pbgkeller", "Gottfried Keller (1819-1890)"], ["pbhkescher", "Hans Konrad Escher von der Linth (1767-1823)"], ["pbhzwingli", "Huldrych Zwingli (1484–1531)"], ["illustration_document", "illustration_document"], ["pbifriedlaender", "Immanuel Friedlaender (1871-1948)"], ["ge88", "Institut et Musée Voltaire, Genève"], ["italpoet", "Italienische Poesie und Prosa des 17. Jahrhunderts (Biblioteca Salita dei Frati, Lugano)"], ["pbjjbodmer", "Johann Jakob Bodmer (1698–1783)"], ["pbjorelli", "Johannes Orelli (1822-1885)"], ["pbjwild", "Johannes Wild (1814-1894)"], ["pbjwaser", "Josias Waser (1598-1629)"], ["kbag", "Kantonsbibliothek Aargau"], ["kbg", "Kantonsbibliothek Graubünden"], ["kbt", "Kantonsbibliothek Thurgau"], ["kbv", "Kantonsbibliothek Vadiana"], ["cartesgeneve", "Karten von Genf und seiner Umgebung"], ["museecarto", "Kartographisches Museum von Genf"], ["rheinau", "Kloster Rheinau (ZB Zürich)"], ["pbjrollier", "Louis Rollier (1859-1931)"], ["multivolumework", "multivolumework"], ["mhr_g", "Musée historique de la Réformation, Genève (GLN)"], ["mhr_r", "Musée historique de la Réformation, Genève (RERO)"], ["maw", "Münzkabinett und Antikensammlung Winterthur"], ["notated_music", "notated_music"], ["pboheer", "Oswald Heer (1809-1883)"], ["panorama", "Panorama"], ["atlanten", "Prachtsatlanten: Von den Anfängen bis ins Goldene Zeitalter"], ["privlib", "Privatbibliotheken"], ["rossica", "Rossica Europeana (UB Bern)"], ["pbrwolf", "Rudolf Wolf (1816-1893)"], ["russexil", "Russisches Schrifttum im Exil (UB Bern)"], ["ch", "Schweizer Drucke"], ["ch15", "Schweizer Drucke des 15. Jahrhunderts"], ["ch16", "Schweizer Drucke des 16. Jahrhunderts"], ["ch17", "Schweizer Drucke des 17. Jahrhunderts"], ["ch18", "Schweizer Drucke des 18. Jahrhunderts"], ["ch19", "Schweizer Drucke des 19. Jahrhunderts"], ["ch20", "Schweizer Drucke des 20. Jahrhunderts"], ["sikjmc", "Schweizer Kinder- und Jugendbücher (Schweizerisches Institut für Kinder- und Jugendmedien SIKJM)"], ["landkarten", "Schweizer Landkarten aus vier Jahrhunderten"], ["sikjm", "Schweizerisches Institut für Kinder- und Jugendmedien SIKJM"], ["snm", "Schweizerisches Nationalmuseum"], ["stgdrucke", "St.Galler Drucke"], ["sbs", "Stadtbibliothek Schaffhausen"], ["stibi", "Stiftsbibliothek St. Gallen"], ["oec", "Stiftung Bibliothek Werner Oechslin, Einsiedeln"], ["stp", "Stiftung Pestalozzianum"], ["tewi", "Technik- und Wissenschaftsgeschichte (Eisenbibliothek)"], ["ticinensia", "Tessiner Editionen des 18. und 19. Jahrhunderts (Biblioteca Salita dei Frati, Lugano)"], ["collections", "Themen und Sammlungen"], ["bau_1", "UB Basel (DSV01)"], ["bes_1", "UB Bern (DSV01)"], ["bes_5", "UB Bern (NEBIS)"], ["doi", "unknown spec"], ["vitruviana", "Vitruviana (Stiftung Bibliothek Werner Oechslin, Einsiedeln)"], ["oiseaux", "Vogelbücher (BPU Neuchâtel)"], ["rousseau", "Werke von Jean-Jacques Rousseau (Bibliothèque de Genève)"], ["profethz", "Werke von Professoren der ETH Zürich (ETH-Bibliothek)"], ["tma", "Werke von Thomas Mann (ETH-Bibliothek)"], ["wihibe", "Wissenschaftshistorische Bestände (ETH-Bibliothek)"], ["zuz", "ZB Zürich (NEBIS)"], ["zhb", "Zentral- & Hochschulbibliothek Luzern"], ["zbs", "Zentralbibliothek Solothurn"], ["zhdk", "Zürcher Hochschule der Künste"]];
+
+const store = {
+  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
+  set(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} },
+};
+const S = {platform: store.get("erara.platform", "e-rara"), proxy: store.get("erara.proxy", "")};
+const base = () => PLATFORMS[S.platform] || PLATFORMS["e-rara"];
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const box = (cls, html) => `<div class="msg ${cls}">${html}</div>`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+class HttpError extends Error { constructor(status, url) { super(`HTTP ${status}`); this.status = status; this.url = url; } }
+class NeedProxy extends Error { constructor(url) { super("This content requires a CORS proxy (see Settings)."); this.url = url; } }
+class OAIError extends Error { constructor(code, msg) { super(`OAI error ${code}: ${msg}`); this.code = code; } }
+
+/* URL templates as per https://www.e-rara.ch/wiki/apiinfo */
+const U = {
+  oai: p => `${base()}/oai?` + new URLSearchParams(Object.entries(p).filter(([, v]) => v)).toString(),
+  fulltext: (v, typ) => `${base()}/download/ftpack/${typ}/${v}`,
+  pageText: v => `${base()}/download/fulltext/plain/${v}`,   // undocumented, works
+  pageAlto: v => `${base()}/download/fulltext/alto/${v}`,
+  mads: v => `${base()}/download/ftpack/mads/${v}`,
+  pdf: v => `${base()}/download/pdf/${v}.pdf`,
+  ris: v => `${base()}/download/format/ris/${v}`,
+  manifest: v => `${base()}/i3f/v20/${v}/manifest`,
+  image: (v, o = {}) => `${base()}/i3f/v21/${v}/${o.region || "full"}/${o.size || "full"}/${o.rotation || 0}/${o.quality || "default"}.jpg`,
+  titleinfo: v => `${base()}/content/titleinfo/${v}`,
+  doiPage: d => `${base()}/doi/${d}`,
+};
+/* Endpoints with Access-Control-Allow-Origin: * (checked 10/2026) */
+const CORS_OK = [/\/download\/ftpack\/(plain|alto|mads)\//, /\/download\/fulltext\/(plain|alto)\//, /\/i3f\//];
+const corsOk = url => CORS_OK.some(r => r.test(url));
+const hasProxy = () => !!S.proxy.trim();
+function routed(url) {
+  if (corsOk(url)) return url;
+  if (!hasProxy()) throw new NeedProxy(url);
+  const p = S.proxy.trim();
+  return p.includes("{url}") ? p.replace("{url}", encodeURIComponent(url)) : p + encodeURIComponent(url);
+}
+
+let lastReq = 0;
+async function get(url, as = "text", {timeout = 120000, retries = 2} = {}) {
+  const target = routed(url);
+  for (let attempt = 0; ; attempt++) {
+    const wait = 300 - (Date.now() - lastReq); if (wait > 0) await sleep(wait);   // go easy on the server
+    lastReq = Date.now();
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), timeout);
+    try {
+      const r = await fetch(target, {signal: ctl.signal});
+      if (r.status === 429 || r.status >= 500) throw new HttpError(r.status, url);
+      if (!r.ok) { const e = new HttpError(r.status, url); e.final = true; throw e; }
+      return as === "json" ? await r.json() : as === "blob" ? await r.blob() : as === "bytes" ? new Uint8Array(await r.arrayBuffer()) : await r.text();
+    } catch (e) {
+      if (e.final || attempt >= retries) {
+        if (e.name === "AbortError") throw new Error(`Timeout for ${url}`);
+        if (e instanceof TypeError) throw new Error(`Network error for ${url}` + (corsOk(url) ? "" : " – check the proxy"));
+        throw e;
+      }
+      await sleep(1000 * 2 ** attempt);
+    } finally { clearTimeout(t); }
+  }
+}
+
+function errText(e) {
+  if (e instanceof HttpError) {
+    const why = {400: "invalid request – check the parameters", 404: "content not available for this title"}[e.status] || "server error";
+    return `${S.platform} responded with ${e.message}: ${why} (${e.url})`;
+  }
+  return e.message || String(e);
+}
+
+/* ====================================================================== *
+ *  Identifiers, pages, IIIF
+ * ====================================================================== */
+const DOI_RE = /10\.3931\/e-rara-\d+|10\.7891\/e-manuscripta-\d+|10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+/i;
+async function resolveVlid(ref) {
+  const text = String(ref || "").trim();
+  if (/^\d+$/.test(text)) return text;
+  let m = text.match(/\/(?:content\/\w+|i3f\/v2\d|download\/(?:pdf|ftpack\/\w+|fulltext\/\w+|format\/\w+))\/(\d+)/) || text.match(/^oai:[^:]+:(\d+)$/);
+  if (m) return m[1];
+  const doi = (text.match(DOI_RE) || [])[0];
+  if (doi) {
+    if (hasProxy()) {
+      const html = await get(U.doiPage(doi));
+      m = html.match(/(?:i3f\/v2\d|download\/pdf|ftpack\/plain)\/(\d+)/);
+      if (m) return m[1];
+    } else {
+      try {   // DataCite: registered target URL of the DOI
+        const r = await fetch(`https://api.datacite.org/dois/${encodeURIComponent(doi)}`);
+        if (r.ok) {
+          const url = (await r.json())?.data?.attributes?.url || "";
+          m = url.match(/\/(\d{4,})(?:[/?#]|$)/);
+          if (m) return m[1];
+        }
+      } catch (e) { /* see below */ }
+      throw new Error(`DOI ${doi} cannot be resolved without a proxy – please enter a VLID or ${S.platform} link.`);
+    }
+    throw new Error(`DOI ${doi} could not be resolved.`);
+  }
+  throw new Error(`No VLID recognised in: «${text}»`);
+}
+
+const manifestCache = new Map();
+async function manifest(vlid) {
+  if (!manifestCache.has(vlid)) manifestCache.set(vlid, await get(U.manifest(vlid), "json"));
+  return manifestCache.get(vlid);
+}
+/* IIIF label/value: plain string, {"@value", "@language"}, list of these (Presentation 2) or language map (Presentation 3);
+   the language of this page is preferred */
+function labelOf(l) {
+  if (l == null) return "";
+  if (typeof l !== "object") return String(l);
+  if (Array.isArray(l)) {
+    const vals = l.map(v => typeof v === "object" && v ? {lang: v["@language"] || "", text: String(v["@value"] ?? "")} : {lang: "", text: String(v ?? "")});
+    const pick = vals.filter(v => v.lang.startsWith(UI_LANG));
+    return (pick.length ? pick : vals.filter(v => !v.lang).length ? vals.filter(v => !v.lang) : vals.slice(0, 1)).map(v => v.text).join("; ");
+  }
+  if ("@value" in l) return String(l["@value"] ?? "");
+  const key = Object.keys(l).find(k => k.startsWith(UI_LANG)) || ("none" in l ? "none" : Object.keys(l)[0]);
+  return [].concat(l[key] ?? "").join("; ");
+}
+function pagesOf(man) {
+  const canv = (man.sequences || []).flatMap(s => s.canvases || []).concat(man.items || []);
+  return canv.map((cv, i) => {
+    const id = cv["@id"] || cv.id || "";
+    return {nr: i + 1, label: labelOf(cv.label), vlid: (id.match(/\/(\d+)\/?$/) || [, ""])[1]};
+  });
+}
+function parsePageSpec(spec, total) {
+  spec = String(spec || "").trim().toLowerCase();
+  if (["", "alle", "all", "*"].includes(spec)) return Array.from({length: total}, (_, i) => i + 1);
+  const out = [];
+  for (const part of spec.split(/[,;\s]+/).filter(Boolean)) {
+    let a, b, m;
+    if ((m = part.match(/^(\d*)-(\d*)$/)) && (m[1] || m[2])) { a = +(m[1] || 1); b = +(m[2] || total); }
+    else if (/^\d+$/.test(part)) a = b = +part;
+    else throw new Error(`Invalid page specification: «${part}»`);
+    if (a < 1 || b > total || a > b) throw new Error(`Pages ${part} outside 1–${total}`);
+    for (let n = a; n <= b; n++) if (!out.includes(n)) out.push(n);
+  }
+  return out;
+}
+function manifestMeta(man) {
+  const meta = {};
+  for (const m of man.metadata || []) {
+    const k = trLabel(labelOf(m.label)), v = labelOf(m.value);
+    if (k) meta[k] = meta[k] ? meta[k] + " | " + v : v;
+  }
+  return meta;
+}
+
+/* ====================================================================== *
+ *  OAI-PMH (proxy only)
+ * ====================================================================== */
+const xmlDoc = s => new DOMParser().parseFromString(s, "application/xml");
+const kids = (el, ns, name) => el ? Array.from(el.children).filter(c => c.namespaceURI === ns && c.localName === name) : [];
+const kid = (el, ns, name) => kids(el, ns, name)[0] || null;
+const txt = el => (el?.textContent || "").replace(/\s+/g, " ").trim();
+/* Convert a from/until value into the form YYYY-MM-DDThh:mm:ssZ required by the platforms;
+   «2017», «2017-09», «2017-09-29» are expanded to the start (from) or end (until) of the period */
+function oaiDate(v, end = false) {
+  if (!v) return v;
+  const m = String(v).trim().match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?Z?$/);
+  if (!m) throw new Error(`Invalid date: «${v}»`);
+  const y = +m[1], mo = m[2] ? +m[2] : (end ? 12 : 1);
+  const d = m[3] ? +m[3] : (end ? new Date(Date.UTC(y, mo, 0)).getUTCDate() : 1);
+  const t = m[4] ? `${m[4]}:${m[5]}:${m[6] || "00"}` : (end ? "23:59:59" : "00:00:00");
+  return `${m[1]}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}T${t}Z`;
+}
+/* Year/month from the form → «YYYY» or «YYYY-MM» (empty: no restriction) */
+function periodValue(form, which) {
+  const y = form[`${which}_y`].value, mo = form[`${which}_m`].value;
+  return y ? (mo ? `${y}-${mo}` : y) : "";
+}
+function periodParams(form) {
+  const from = oaiDate(periodValue(form, "from")), until = oaiDate(periodValue(form, "until"), true);
+  if (from && until && from > until) throw new Error("The period is invalid: «from» is after «until».");
+  return {from, until};
+}
+
+async function oai(params) {
+  if (params.from) params.from = oaiDate(params.from);
+  if (params.until) params.until = oaiDate(params.until, true);
+  const doc = xmlDoc(await get(U.oai(params)));
+  if (doc.getElementsByTagName("parsererror").length) throw new Error("The response of the OAI interface is not valid XML.");
+  const err = doc.getElementsByTagNameNS(NS.oai, "error")[0];
+  if (err) throw new OAIError(err.getAttribute("code"), txt(err));
+  return doc;
+}
+async function* oaiList(verb, item, params, signal) {
+  let doc;
+  try { doc = await oai({verb, ...params}); }
+  catch (e) { if (e.code === "noRecordsMatch") return; throw e; }
+  while (true) {
+    if (signal?.aborted) return;
+    const body = doc.getElementsByTagNameNS(NS.oai, verb)[0]; if (!body) return;
+    for (const el of kids(body, NS.oai, item)) yield el;
+    const tok = kid(body, NS.oai, "resumptionToken");
+    if (!tok || !txt(tok)) return;
+    doc = await oai({verb, resumptionToken: txt(tok)});
+  }
+}
+function parseRecord(el, prefix) {
+  const h = kid(el, NS.oai, "header");
+  const ident = txt(kid(h, NS.oai, "identifier"));
+  const rec = {
+    vlid: ident.split(":").pop(), oai_identifier: ident, datestamp: txt(kid(h, NS.oai, "datestamp")),
+    setSpec: kids(h, NS.oai, "setSpec").map(txt), deleted: h.getAttribute("status") === "deleted",
+    metadataPrefix: prefix, dc: {}, mods: null, xml: new XMLSerializer().serializeToString(el),
+  };
+  const md = kid(el, NS.oai, "metadata");
+  const dcRoot = md && md.getElementsByTagNameNS("http://www.openarchives.org/OAI/2.0/oai_dc/", "dc")[0];
+  if (dcRoot) for (const c of dcRoot.children) if (c.namespaceURI === NS.dc && txt(c)) (rec.dc[c.localName] ||= []).push(txt(c));
+  const modsEl = md && md.getElementsByTagNameNS(NS.mods, "mods")[0];
+  if (modsEl) rec.mods = parseMods(modsEl);
+  rec.doi = rec.mods?.identifiers?.doi?.[0] || [...(rec.dc.identifier || []), ...(rec.dc.relation || [])].map(v => (v.match(/10\.3931\/e-rara-\d+|10\.7891\/e-manuscripta-\d+/i) || [""])[0]).find(Boolean) || "";
+  rec.title = rec.mods ? rec.mods.title : (rec.dc.title || [""])[0];
+  return rec;
+}
+
+/* ---- MODS ---- */
+const M = NS.mods;
+const mAll = (el, ...path) => {
+  let cur = [el];
+  for (const p of path) cur = cur.flatMap(e => kids(e, M, p));
+  return [...new Set(cur.map(txt).filter(Boolean))];
+};
+const mOne = (el, ...path) => mAll(el, ...path)[0] || "";
+function modsTitle(ti) {
+  let t = [mOne(ti, "nonSort"), mOne(ti, "title")].filter(Boolean).join(" ");
+  const sub = mOne(ti, "subTitle"); if (sub) t += ` : ${sub}`;
+  const part = [mOne(ti, "partNumber"), mOne(ti, "partName")].filter(Boolean).join(", "); if (part) t += `. ${part}`;
+  return t;
+}
+function parseMods(mods) {
+  const titles = kids(mods, M, "titleInfo");
+  const main = titles.find(t => !t.getAttribute("type")) || titles[0];
+  const origin = kid(mods, M, "originInfo");
+  const names = kids(mods, M, "name").map(n => {
+    const parts = {}; for (const p of kids(n, M, "namePart")) parts[p.getAttribute("type") || ""] = txt(p);
+    const roles = kids(n, M, "role").flatMap(r => kids(r, M, "roleTerm"));
+    return {
+      name: mOne(n, "displayForm") || ((parts.family || parts.given) ? [parts.family, parts.given].filter(Boolean).join(", ") : parts[""] || ""),
+      type: n.getAttribute("type") || "", dates: parts.date || "",
+      roles: roles.filter(r => r.getAttribute("type") === "text").map(txt),
+      role_codes: roles.filter(r => r.getAttribute("type") === "code").map(txt),
+      gnd: n.getAttribute("valueURI") || "", primary: n.getAttribute("usage") === "primary",
+    };
+  });
+  const identifiers = {};
+  for (const i of kids(mods, M, "identifier")) if (txt(i)) (identifiers[i.getAttribute("type") || "other"] ||= []).push(txt(i));
+  const holdings = kids(mods, M, "location").map(loc => {
+    const phys = kid(loc, M, "physicalLocation");
+    const shelf = [...mAll(loc, "shelfLocator"), ...mAll(loc, "holdingSimple", "copyInformation", "shelfLocator")];
+    return (phys || shelf.length) ? {library: phys?.getAttribute("displayLabel") || txt(phys), code: txt(phys), shelfmarks: shelf} : null;
+  }).filter(Boolean);
+  const related = kids(mods, M, "relatedItem").map(r => ({
+    type: r.getAttribute("type") || "", title: kid(r, M, "titleInfo") ? modsTitle(kid(r, M, "titleInfo")) : "",
+    doi: kids(r, M, "identifier").filter(i => i.getAttribute("type") === "doi").map(txt)[0] || "",
+    part: mOne(r, "part", "detail", "number"),
+  }));
+  const subjects = kids(mods, M, "subject");
+  const access = kid(mods, M, "accessCondition");
+  return {
+    title: main ? modsTitle(main) : "", title_alternative: titles.filter(t => t !== main).map(modsTitle), names,
+    place: origin ? kids(origin, M, "place").flatMap(p => kids(p, M, "placeTerm")).filter(p => p.getAttribute("type") !== "code").map(txt).filter(Boolean) : [],
+    publisher: origin ? mAll(origin, "publisher") : [], date_issued: origin ? mAll(origin, "dateIssued") : [],
+    edition: origin ? mOne(origin, "edition") : "", issuance: origin ? mOne(origin, "issuance") : "", frequency: origin ? mAll(origin, "frequency") : [],
+    language: mAll(mods, "language", "languageTerm"), extent: mAll(mods, "physicalDescription", "extent"),
+    form: mAll(mods, "physicalDescription", "form"), type_of_resource: mAll(mods, "typeOfResource"), genre: mAll(mods, "genre"),
+    subject: {
+      topic: mAll(mods, "subject", "topic"), geographic: mAll(mods, "subject", "geographic"), temporal: mAll(mods, "subject", "temporal"),
+      name: subjects.flatMap(s => kids(s, M, "name")).map(n => mOne(n, "displayForm") || mAll(n, "namePart").join(" ")),
+      genre: mAll(mods, "subject", "genre"),
+      gnd: [...new Set(subjects.flatMap(s => Array.from(s.children)).map(e => e.getAttribute("valueURI")).filter(Boolean))],
+    },
+    classification: mAll(mods, "classification"),
+    cartographics: {scale: mAll(mods, "subject", "cartographics", "scale"), coordinates: mAll(mods, "subject", "cartographics", "coordinates"), projection: mAll(mods, "subject", "cartographics", "projection")},
+    notes: kids(mods, M, "note").filter(n => txt(n)).map(n => ({type: n.getAttribute("type") || "", text: txt(n)})),
+    abstract: mAll(mods, "abstract"), table_of_contents: mAll(mods, "tableOfContents"), related, holdings, identifiers,
+    urls: mAll(mods, "location", "url"), rights: txt(access), license_url: access?.getAttributeNS(NS.xlink, "href") || "",
+    record: {source: mOne(mods, "recordInfo", "recordContentSource"), identifier: mOne(mods, "recordInfo", "recordIdentifier"),
+             created: mOne(mods, "recordInfo", "recordCreationDate"), changed: mOne(mods, "recordInfo", "recordChangeDate")},
+  };
+}
+function flattenMods(m, sep = " | ") {
+  const j = a => a.filter(Boolean).join(sep);
+  const authors = m.names.filter(n => n.primary).map(n => n.name);
+  const nameStr = n => n.name + (n.dates ? ` [${n.dates}]` : "") + (n.roles.length ? ` (${n.roles.join(", ")})` : "");
+  const relStr = r => (r.type ? `${r.type}: ${r.title}` : r.title) + (r.doi ? ` [${r.doi}]` : "") + (r.part ? ` (${r.part})` : "");
+  const other = Object.entries(m.identifiers).filter(([k]) => !["doi", "oclc"].includes(k)).flatMap(([k, vs]) => vs.map(v => `${k}:${v}`));
+  return {
+    title: m.title, title_alternative: j(m.title_alternative),
+    author: j(authors.length ? authors : m.names.filter(n => !n.roles.length).map(n => n.name)),
+    names: j(m.names.map(nameStr)), names_gnd: j(m.names.map(n => n.gnd)),
+    place: j(m.place), publisher: j(m.publisher), date: j(m.date_issued), edition: m.edition, issuance: m.issuance, frequency: j(m.frequency),
+    language: j(m.language), extent: j(m.extent), form: j(m.form), type_of_resource: j(m.type_of_resource), genre: j(m.genre),
+    subject_topic: j(m.subject.topic), subject_geographic: j(m.subject.geographic), subject_temporal: j(m.subject.temporal),
+    subject_name: j(m.subject.name), subject_gnd: j(m.subject.gnd), classification: j(m.classification),
+    cartographic_scale: j(m.cartographics.scale), cartographic_coordinates: j(m.cartographics.coordinates),
+    statement_of_responsibility: j(m.notes.filter(n => n.type === "statement of responsibility").map(n => n.text)),
+    note: j(m.notes.filter(n => n.type !== "statement of responsibility").map(n => n.text)),
+    abstract: j(m.abstract), table_of_contents: j(m.table_of_contents), related: j(m.related.map(relStr)),
+    library: j([...new Set(m.holdings.map(h => h.library))]), shelfmark: j(m.holdings.flatMap(h => h.shelfmarks)),
+    oclc: j(m.identifiers.oclc || []), identifiers: j(other), url: j(m.urls), rights: m.rights, license_url: m.license_url,
+    record_source: m.record.source, record_identifier: m.record.identifier, record_changed: m.record.changed,
+  };
+}
+function flatRecord(r, sep = " | ") {
+  const row = {vlid: r.vlid, oai_identifier: r.oai_identifier, datestamp: r.datestamp, setSpec: r.setSpec.join(sep), deleted: r.deleted ? "true" : "", doi: r.doi};
+  if (r.mods) Object.assign(row, flattenMods(r.mods, sep));
+  else for (const f of DC_FIELDS) row[f] = (r.dc[f] || []).join(sep);
+  return row;
+}
+function recordDict(r) {
+  const d = {vlid: r.vlid, oai_identifier: r.oai_identifier, datestamp: r.datestamp, setSpec: r.setSpec, deleted: r.deleted, metadataPrefix: r.metadataPrefix, doi: r.doi};
+  if (r.mods) d.mods = r.mods; else d.dc = r.dc;
+  return d;
+}
+
+/* ====================================================================== *
+ *  Entities (MADS XML → JSON/CSV)
+ *  Structure at e-rara: <madsCollection><mads> per entity with
+ *    authority/(name[@type=personal|corporate]/namePart | geographic | topic) including GND valueURI,
+ *    extension/vl:occurrences/vl:url[@type=page] → page ALTO, recordInfo/recordIdentifier.
+ * ====================================================================== */
+const MADS_NS = "http://www.loc.gov/mads/v2";
+const ENTITY_TYPES = {personal: "person", corporate: "corporate", geographic: "place", topic: "topic"};
+const ENTITY_LABELS = {person: "persons", corporate: "corporate bodies", place: "places", topic: "topics"};
+const ENTITY_COLUMNS = ["title_vlid", "entity_id", "type", "name", "gnd", "gnd_id", "occurrences", "page_numbers", "page_labels", "page_vlids", "alto_urls"];
+function parseMads(xmlText) {
+  const doc = xmlDoc(xmlText);
+  if (doc.getElementsByTagName("parsererror").length || !doc.getElementsByTagNameNS(MADS_NS, "madsCollection").length)
+    throw new Error("The response is not MADS XML.");
+  return Array.from(doc.getElementsByTagNameNS(MADS_NS, "mads")).map(m => {
+    const auth = kid(m, MADS_NS, "authority");
+    const el = auth ? Array.from(auth.children)[0] : null;
+    let type = el ? el.localName : "";
+    let name = "";
+    if (el && el.localName === "name") {
+      type = ENTITY_TYPES[el.getAttribute("type")] || "name";
+      name = kids(el, MADS_NS, "namePart").map(txt).filter(Boolean).join(" ");
+    } else if (el) { type = ENTITY_TYPES[type] || type; name = txt(el); }
+    const gnd = el?.getAttribute("valueURI") || "";
+    const urls = Array.from(m.getElementsByTagName("*")).filter(e => e.localName === "url" && e.getAttribute("type") === "page").map(txt);
+    return {
+      entity_id: txt(m.getElementsByTagNameNS(MADS_NS, "recordIdentifier")[0]),
+      type, name, gnd, gnd_id: (gnd.match(/\/gnd\/([^/?#]+)$/) || [, ""])[1],
+      pages: [...new Set(urls)].map(u => ({vlid: (u.match(/\/(\d+)\/?$/) || [, ""])[1], alto: u})),
+    };
+  });
+}
+/* Load the entities of a title and add image number/label from the IIIF manifest to the pages */
+async function madsEntities(vlid) {
+  if (!hasEntities()) throw new Error(NO_ENTITIES);
+  const entities = parseMads(await get(U.mads(vlid)));
+  try {
+    const idx = new Map(pagesOf(await manifest(vlid)).map(p => [p.vlid, p]));
+    for (const e of entities) for (const pg of e.pages) { const p = idx.get(pg.vlid); if (p) { pg.nr = p.nr; pg.label = p.label; } }
+  } catch (e) { /* without manifest: page VLIDs only */ }
+  for (const e of entities) e.pages.sort((a, b) => (a.nr ?? 1e9) - (b.nr ?? 1e9));
+  entities.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name, "de"));
+  return {vlid, entities};
+}
+function entityCounts(entities) {
+  const c = {}; for (const e of entities) c[e.type] = (c[e.type] || 0) + 1;
+  return Object.entries(c).map(([t, n]) => `${ENTITY_LABELS[t] || t} ${n}`).join(", ");
+}
+function madsJson(results) {
+  return results.map(r => ({vlid: r.vlid, entity_count: r.entities.length,
+    entities: r.entities.map(e => ({...e, occurrences: e.pages.length}))}));
+}
+function madsRows(results, sep = " | ") {
+  return results.flatMap(r => r.entities.map(e => ({
+    title_vlid: r.vlid, entity_id: e.entity_id, type: e.type, name: e.name, gnd: e.gnd, gnd_id: e.gnd_id,
+    occurrences: e.pages.length, page_numbers: e.pages.map(p => p.nr ?? "").join(sep), page_labels: e.pages.map(p => p.label ?? "").join(sep),
+    page_vlids: e.pages.map(p => p.vlid).join(sep), alto_urls: e.pages.map(p => p.alto).join(sep),
+  })));
+}
+function entitiesCsv(results) {
+  const rows = madsRows(results);
+  return rows.length ? toCsv(rows) : "\ufeff" + ENTITY_COLUMNS.join(",") + "\r\n";
+}
+
+/* ====================================================================== *
+ *  Output: CSV, JSON, ZIP, download
+ * ====================================================================== */
+function toCsv(rows) {
+  if (!rows.length) return "﻿";
+  const cols = Object.keys(rows[0]);
+  const q = v => { v = String(v ?? ""); return /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+  return "﻿" + [cols.map(q).join(","), ...rows.map(r => cols.map(c => q(r[c])).join(","))].join("\r\n") + "\r\n";
+}
+const enc = new TextEncoder();
+const bytes = d => d instanceof Uint8Array ? d : enc.encode(d);
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+/* ZIP («stored» method, UTF-8 file names) – sufficient for text, XML, JPEG and PDF */
+function makeZip(files) {
+  const parts = [], central = []; let offset = 0;
+  const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+        date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (const f of files) {
+    const name = enc.encode(f.name), data = bytes(f.data), crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, name.length, 2], [28, 0, 2]]
+      .forEach(([o, v, n]) => n === 4 ? lh.setUint32(o, v, true) : lh.setUint16(o, v, true));
+    parts.push(lh, name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, name.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, offset, 4]]
+      .forEach(([o, v, n]) => n === 4 ? ch.setUint32(o, v, true) : ch.setUint16(o, v, true));
+    central.push(ch, name);
+    offset += 30 + name.length + data.length;
+  }
+  const size = central.reduce((s, p) => s + p.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  [[0, 0x06054b50, 4], [4, 0, 2], [6, 0, 2], [8, files.length, 2], [10, files.length, 2], [12, size, 4], [16, offset, 4], [20, 0, 2]]
+    .forEach(([o, v, n]) => n === 4 ? end.setUint32(o, v, true) : end.setUint16(o, v, true));
+  return new Blob([...parts, ...central, end], {type: "application/zip"});
+}
+function save(data, name, type = "application/octet-stream") {
+  const blob = data instanceof Blob ? data : new Blob([data], {type});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+}
+const prefix = () => S.platform === "e-manuscripta" ? "emanuscripta" : "erara";
+
+/* ====================================================================== *
+ *  Format guide
+ * ====================================================================== */
+const FORMAT_GUIDE = [
+  ["oai_dc", "Dublin Core: 15 basic fields (title, creator, date, language, rights …)", "yes – simple table (21 columns)", "yes – small", "Fast; good for overviews and statistics."],
+  ["mods", "MODS: detailed bibliographic description – roles, GND links, publication details, subject headings, map scale, relations, library and shelfmark", "yes – detailed table (45 columns)", "yes", "Recommended for analyses involving persons, places, shelfmarks."],
+  ["rawmods", "MODS in unprocessed form; in spot checks structured the same as mods", "yes – as mods", "yes", "Only needed if the raw version is explicitly required."],
+  ["mets", "METS: MODS plus structure (chapters, pages) and references to all image and full-text files", "partly – MODS part only", "yes – for structure and files", "Large; timeouts possible for extensive titles."],
+  ["arcmets", "Archival METS: as mets, plus technical image metadata (MIX) and master files", "partly – MODS part only", "yes – for long-term preservation", "Very large; timeouts for extensive titles."],
+  ["epicur", "URN administrative data (persistent identifiers)", "no", "yes", "Only relevant for URN registration."],
+];
+function guideHtml() {   /* always collapsed */
+  const rows = FORMAT_GUIDE.map(r => `<tr><td><code>${esc(r[0])}</code></td>${r.slice(1).map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+  return `<details class="guide"><summary>Which format for what?</summary><div class="tablewrap"><table>
+<tr><th>Query format</th><th>Content</th><th>CSV / JSON</th><th>XML</th><th>Note</th></tr>${rows}</table></div>
+<p class="hint">CSV: one row per title, multiple values separated by « | » – for Excel, LibreOffice or pandas.
+JSON: multiple values and substructures (e.g. persons with role and GND link) are preserved – for further processing in software.
+XML: original data from ${esc(S.platform)}, complete and unchanged. In this HTML version, CSV/JSON from <code>oai_dc</code>/MODS require a proxy.</p></details>`;
+}
+
+/* ====================================================================== *
+ *  Title
+ * ====================================================================== */
+const TITLE_ITEMS = {
+  meta: ["Metadata as XML", "xml", true], meta_json: ["Metadata as JSON", "json", false], meta_csv: ["Metadata as CSV", "csv", false],
+  ris: ["RIS (Zotero, Citavi, EndNote)", "ris", true], plain: ["Full text as plain text", "txt", false], alto: ["Full text as ALTO XML", "xml", false],
+  mads: ["Entities as MADS XML", "xml", false], mads_json: ["Entities as JSON", "json", false], mads_csv: ["Entities as CSV", "csv", false],
+  pdf: ["PDF", "pdf", true], manifest: ["IIIF manifest (JSON)", "json", false],
+  images: ["All page images (ZIP)", "zip", false],
+};   // [label, extension, needs proxy (otherwise link)]
+function itemName(vlid, item, fmt) {
+  const suf = {meta: `_${fmt}`, meta_json: `_${fmt}`, meta_csv: `_${fmt}`, plain: "_fulltext", alto: "_alto", mads: "_mads", mads_json: "_entities", mads_csv: "_entities", manifest: "_manifest", images: "_images"}[item] || "";
+  return `${prefix()}_${vlid}${suf}.${TITLE_ITEMS[item][1]}`;
+}
+function directLink(vlid, item, fmt) {
+  return {meta: U.oai({verb: "GetRecord", metadataPrefix: fmt, identifier: vlid}), ris: U.ris(vlid), pdf: U.pdf(vlid)}[item];
+}
+async function metaRecord(vlid, fmt) {
+  const doc = await oai({verb: "GetRecord", metadataPrefix: fmt, identifier: vlid});
+  return parseRecord(doc.getElementsByTagNameNS(NS.oai, "record")[0], fmt);
+}
+/* Returns {data, note?} for one content item */
+async function fetchItem(vlid, item, opt) {
+  const fmt = opt.format;
+  switch (item) {
+    case "meta": return {data: (await metaRecord(vlid, fmt)).xml};
+    case "meta_json": case "meta_csv": {
+      const kind = item === "meta_json" ? "json" : "csv";
+      if (hasProxy()) {
+        if (!TABULAR_FORMATS.includes(fmt)) throw new Error(`The format ${fmt} cannot be output as JSON/CSV – please choose ${TABULAR_FORMATS.join(", ")} or download XML.`);
+        const r = await metaRecord(vlid, fmt);
+        return {data: kind === "json" ? JSON.stringify([recordDict(r)], null, 2) : toCsv([flatRecord(r)])};
+      }
+      const man = await manifest(vlid), meta = manifestMeta(man);
+      const row = {vlid, label: labelOf(man.label), ...meta, Pages: pagesOf(man).length, Manifest: U.manifest(vlid)};
+      return {data: kind === "json" ? JSON.stringify([row], null, 2) : toCsv([row]),
+              fmt: "iiif", note: "from the IIIF manifest (simplified), as OAI cannot be reached without a proxy"};
+    }
+    case "ris": return {data: await get(U.ris(vlid))};
+    case "pdf": return {data: await get(U.pdf(vlid), "bytes")};
+    case "plain": case "alto": if (fullTextOff(item)) throw new Error(NO_TITLE_TEXT); return {data: await get(U.fulltext(vlid, item))};
+    case "mads": if (!hasEntities()) throw new Error(NO_ENTITIES); return {data: await get(U.mads(vlid))};
+    case "mads_json": return {data: JSON.stringify(madsJson([await madsEntities(vlid)]), null, 2)};
+    case "mads_csv": return {data: entitiesCsv([await madsEntities(vlid)])};
+    case "manifest": return {data: JSON.stringify(await manifest(vlid), null, 2)};
+    case "images": {
+      const pages = pagesOf(await manifest(vlid)), files = [];
+      for (const pg of pages) {
+        progress(`Image ${pg.nr} of ${pages.length} …`, pg.nr, pages.length);
+        files.push({name: `${vlid}_${String(pg.nr).padStart(4, "0")}.jpg`, data: await get(U.image(pg.vlid, {size: opt.size}), "bytes")});
+      }
+      return {data: new Uint8Array(await makeZip(files).arrayBuffer())};
+    }
+  }
+  throw new Error(`Unknown content: ${item}`);
+}
+
+let progressEl = null;
+function progress(text, n, total) {
+  if (!progressEl) return;
+  progressEl.innerHTML = `<div class="msg">${esc(text)}${total ? `<br><progress value="${n}" max="${total}"></progress>` : ""}</div>`;
+}
+
+async function titlePreview(vlid) {
+  const man = await manifest(vlid), meta = manifestMeta(man), pages = pagesOf(man);
+  const thumb = pages.length ? `<img src="${esc(U.image(pages[0].vlid, {size: "300,"}))}" alt="First page">` : "";
+  let ent;
+  if (!hasEntities()) ent = "not offered by e-manuscripta";
+  else try { const r = await madsEntities(vlid); ent = r.entities.length ? `${r.entities.length} (${entityCounts(r.entities)})` : "none"; }
+  catch (e) { ent = e instanceof HttpError && e.status === 404 ? "none (not indexed for this title)" : "not retrievable"; }
+  const rows = [["VLID", vlid], ...Object.entries(meta), ["Pages (IIIF)", pages.length], ["Entities (NER/NEL)", ent]];
+  const doi = (meta.DOI || "").match(DOI_RE)?.[0];
+  const links = [...(doi ? [["DOI", `https://doi.org/${doi}`]] : []), ["Title view", U.titleinfo(vlid)], ["IIIF manifest", U.manifest(vlid)]];
+  return `<div class="card"><h2>${esc(labelOf(man.label) || vlid)}</h2><div class="preview">${thumb}<dl>
+${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}
+<dt>Links</dt><dd>${links.map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</dd></dl></div></div>`;
+}
+
+async function onTitel(form, action) {
+  const out = $("#t-out"); progressEl = out;
+  const vlid = await resolveVlid(form.ref.value);
+  const opt = {format: form.format.value, size: form.size.value};
+  if (action === "show") { out.innerHTML = await titlePreview(vlid); return; }
+  const items = [...form.querySelectorAll("input[name=item]:checked:not(:disabled)")].map(i => i.value);
+  if (!items.length) throw new Error("Please select at least one content item.");
+  const links = [], notes = [], files = [];
+  for (const item of items) {
+    if (TITLE_ITEMS[item][2] && !hasProxy()) { links.push([TITLE_ITEMS[item][0], directLink(vlid, item, opt.format)]); continue; }
+    progress(`Loading ${TITLE_ITEMS[item][0]} …`);
+    try {
+      const r = await fetchItem(vlid, item, opt);
+      files.push({name: itemName(vlid, item, r.fmt || opt.format), data: r.data});
+      if (r.note) notes.push(`${TITLE_ITEMS[item][0]}: ${r.note}`);
+    } catch (e) { notes.push(`${TITLE_ITEMS[item][0]} not available – ${errText(e)}`); }
+  }
+  if (files.length === 1) save(files[0].data, files[0].name);
+  else if (files.length > 1) {
+    if (notes.length) files.push({name: "NOTES.txt", data: notes.join("\n") + "\n"});
+    save(makeZip(files), `${prefix()}_${vlid}.zip`);
+  }
+  let html = files.length ? box("ok", `${files.length} file(s) downloaded.`) : "";
+  if (notes.length) html += box("warn", notes.map(esc).join("<br>"));
+  if (links.length) html += box("warn", `${esc(S.platform)} blocks this content for browser scripts; please open or save it directly (or enter a proxy in the Settings):
+<ul class="links">${links.map(([t, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener" download>${esc(t)}</a></li>`).join("")}</ul>`);
+  out.innerHTML = html;
+}
+
+/* ====================================================================== *
+ *  Pages
+ * ====================================================================== */
+function imageOpts(form) {
+  const pick = n => form[n].value === "custom" ? form[n + "_c"].value.trim() : form[n].value;
+  const o = {region: pick("region") || "full", size: pick("isize") || "full",
+             rotation: (form.mirror.checked ? "!" : "") + form.rotation.value, quality: form.quality.value};
+  const names = {region: "Region", size: "Image size"};
+  for (const k of ["region", "size"]) if (!/^[A-Za-z0-9:,.!]+$/.test(o[k])) throw new Error(`Invalid value for «${names[k]}»: «${o[k]}»`);
+  if (!/^!?(0|90|180|270)$/.test(o.rotation) || !["default", "gray", "bitonal"].includes(o.quality)) throw new Error("Invalid image option");
+  return o;
+}
+const pageName = pg => pg.nr ? `image${String(pg.nr).padStart(4, "0")}_${pg.vlid}` : `page_${pg.vlid}`;
+async function selectPages(form) {
+  const spec = form.pages.value.trim();
+  if (!spec) return {title: null, pages: [{nr: null, label: "", vlid: await resolveVlid(form.ref.value)}], total: 0};
+  const title = await resolveVlid(form.ref.value);
+  let all;
+  try { all = pagesOf(await manifest(title)); }
+  catch (e) { throw new Error(`${title} is not a title with an IIIF manifest – for a page VLID, leave the Image number(s) field empty.`); }
+  return {title, pages: parsePageSpec(spec, all.length).map(n => all[n - 1]), total: all.length};
+}
+async function pageText(pg) {
+  try { return (await get(U.pageText(pg.vlid))).trim() || "[empty]"; }
+  catch (e) { return e instanceof HttpError ? `[no full text: HTTP ${e.status}]` : Promise.reject(e); }
+}
+async function onSeiten(form, action) {
+  const out = $("#s-out"); progressEl = out;
+  const o = imageOpts(form);
+  const {title, pages, total} = await selectPages(form);
+  const baseName = title ? `${title}_image_${form.pages.value.trim().toLowerCase().replace(/[^0-9a-z-]+/g, "_").replace(/^_|_$/g, "")}` : pageName(pages[0]);
+  if (action === "text") {
+    const parts = [];
+    for (const [i, pg] of pages.entries()) {
+      progress(`Text ${i + 1} of ${pages.length} …`, i, pages.length);
+      if (title) parts.push(`${parts.length ? "\n\n" : ""}===== Image ${pg.nr} (${pg.label}) =====\n\n`);
+      parts.push(await pageText(pg));
+    }
+    save(parts.join("") + "\n", `${baseName}.txt`, "text/plain;charset=utf-8");
+    out.innerHTML = box("ok", `Text of ${pages.length} page(s) downloaded.`); return;
+  }
+  if (action === "image" || action === "alto") {
+    const files = [];
+    for (const pg of pages) {
+      progress(`${action === "alto" ? "ALTO" : "Image"} ${files.length + 1} of ${pages.length} …`, files.length, pages.length);
+      try {
+        files.push(action === "alto" ? {name: `${pageName(pg)}_alto.xml`, data: await get(U.pageAlto(pg.vlid))}
+                                     : {name: `${pageName(pg)}.jpg`, data: await get(U.image(pg.vlid, o), "bytes")});
+      } catch (e) { if (pages.length === 1) throw e; files.push({name: `${pageName(pg)}_MISSING.txt`, data: errText(e) + "\n"}); }
+    }
+    if (files.length === 1) save(files[0].data, files[0].name, action === "alto" ? "application/xml" : "image/jpeg");
+    else save(makeZip(files), `${baseName}_${action === "alto" ? "alto" : "images"}.zip`);
+    out.innerHTML = box("ok", `${files.length} file(s) downloaded.`); return;
+  }
+  const first = pages[0];
+  const prev = U.image(first.vlid, {...o, size: "!600,600"}), full = U.image(first.vlid, o);
+  const texts = [];
+  for (const pg of pages.slice(0, 5)) texts.push(`<h3>${esc(pg.nr ? `Image ${pg.nr} ${pg.label}` : `Page ${pg.vlid}`)}</h3><pre>${esc(await pageText(pg))}</pre>`);
+  const sel = pages.length > 1 ? `<dt>Selection</dt><dd>${pages.length} pages: ${pages.slice(0, 30).map(p => p.nr).join(", ")}${pages.length > 30 ? " …" : ""}</dd>` : "";
+  out.innerHTML = `<div class="card"><h2>${esc(title ? `Image ${first.nr} of ${total}` : `Page ${first.vlid}`)}</h2><div class="preview">
+<a href="${esc(full)}" target="_blank" rel="noopener"><img class="big" src="${esc(prev)}" alt="Preview"></a>
+<dl><dt>Page VLID</dt><dd>${esc(first.vlid)}</dd>${first.label ? `<dt>Label</dt><dd>${esc(first.label)}</dd>` : ""}${sel}
+<dt>Links</dt><dd><a href="${esc(full)}" target="_blank" rel="noopener">Image</a> · <a href="${esc(U.pageText(first.vlid))}" target="_blank" rel="noopener">Text</a> · <a href="${esc(U.pageAlto(first.vlid))}" target="_blank" rel="noopener">ALTO</a></dd></dl></div>
+<h3 style="margin:18px 0 0">OCR text</h3>${texts.join("")}${pages.length > 5 ? `<p class="hint">The preview shows the first 5 of ${pages.length} pages; «Text» downloads all of them.</p>` : ""}</div>`;
+}
+
+/* ====================================================================== *
+ *  Collection
+ * ====================================================================== */
+const BULK = {ris: ["RIS", true], plain: ["Full text as plain text", false], alto: ["Full text as ALTO XML", false],
+  mads: ["Entities as MADS XML (per title)", false], mads_json: ["Entities as JSON (all titles, one file)", false],
+  mads_csv: ["Entities as CSV (all titles, one file)", false], pdf: ["PDF", true]};
+let harvestCtl = null;
+async function onSammlung(form, action) {
+  const out = $("#c-out"); progressEl = out;
+  if (!hasProxy()) {
+    const url = U.oai({verb: "ListRecords", metadataPrefix: form.format.value, set: form.set.value, ...periodParams(form)});
+    out.innerHTML = box("warn", `Harvesting requires the OAI interface, which ${esc(S.platform)} blocks for browser scripts. Options:
+<ul class="links"><li>enter a CORS proxy in the <a href="#settings">Settings</a>,</li>
+<li>view the first page of results directly: <a href="${esc(url)}" target="_blank" rel="noopener">open OAI query</a> (XML, 10 records each).</li></ul>`);
+    return;
+  }
+  const fmt = form.format.value, set = form.set.value || undefined;
+  const params = {metadataPrefix: fmt, set, ...periodParams(form)};
+  if (action === "count") {
+    const doc = await oai({verb: "ListIdentifiers", ...params}).catch(e => { if (e.code === "noRecordsMatch") return null; throw e; });
+    const tok = doc?.getElementsByTagNameNS(NS.oai, "resumptionToken")[0];
+    const n = tok?.getAttribute("completeListSize") ?? (doc ? doc.getElementsByTagNameNS(NS.oai, "header").length : 0);
+    const max = +form.max.value || 0;
+    out.innerHTML = box("", `Matches: ${Number(n).toLocaleString("en-GB")}${max ? ` – at most ${max} would be loaded.` : "."}`);
+    return;
+  }
+  const outs = [...form.querySelectorAll("input[name=out]:checked")].map(i => i.value);
+  const bulk = [...form.querySelectorAll("input[name=bulk]:checked:not(:disabled)")].map(i => i.value);
+  if (!outs.length && !bulk.length) throw new Error("Please choose at least one output.");
+  if ((outs.includes("csv") || outs.includes("json")) && !TABULAR_FORMATS.includes(fmt))
+    throw new Error(`The query format ${fmt} cannot be output as CSV/JSON – please choose XML or one of ${TABULAR_FORMATS.join(", ")}.`);
+  const max = +form.max.value || Infinity;
+  harvestCtl = new AbortController(); $("#c-cancel").hidden = false;
+  const recs = [];
+  try {
+    for await (const el of oaiList("ListRecords", "record", params, harvestCtl.signal)) {
+      const r = parseRecord(el, fmt);
+      if (!r.deleted) recs.push(r);
+      progress(`${recs.length} records loaded …`, recs.length, isFinite(max) ? max : 0);
+      if (recs.length >= max) break;
+    }
+    if (!recs.length) throw new Error("No records found.");
+    const name = `${set || "all"}_${fmt}`;
+    const files = [], missing = [];
+    if (outs.includes("csv")) files.push({name: `${name}.csv`, data: toCsv(recs.map(r => flatRecord(r)))});
+    if (outs.includes("json")) files.push({name: `${name}.json`, data: JSON.stringify(recs.map(recordDict), null, 2)});
+    if (outs.includes("vlids")) files.push({name: `${name}_vlids.txt`, data: recs.map(r => r.vlid).join("\n") + "\n"});
+    if (outs.includes("xml")) for (const r of recs) files.push({name: `xml/${r.vlid}.xml`, data: `<?xml version="1.0" encoding="utf-8"?>\n${r.xml}`});
+    let i = 0;
+    const entityResults = [], wantEntities = bulk.some(b => b === "mads_json" || b === "mads_csv");
+    for (const r of recs) {
+      i++;
+      for (const b of bulk.filter(b => b !== "mads_json" && b !== "mads_csv")) {
+        if (harvestCtl.signal.aborted) break;
+        progress(`Content per title: ${i} of ${recs.length} (${BULK[b][0]}) …`, i, recs.length);
+        try { files.push({name: `${b}/${itemName(r.vlid, b, fmt)}`, data: (await fetchItem(r.vlid, b, {format: fmt})).data}); }
+        catch (e) { missing.push(`${r.vlid}\t${b}\t${e.status ? "HTTP " + e.status : e.message}`); }
+      }
+      if (wantEntities && !harvestCtl.signal.aborted) {
+        progress(`Entities: ${i} of ${recs.length} …`, i, recs.length);
+        try { entityResults.push(await madsEntities(r.vlid)); }
+        catch (e) { missing.push(`${r.vlid}\tentities\t${e.status === 404 ? "no entities (HTTP 404)" : e.status ? "HTTP " + e.status : e.message}`); }
+      }
+    }
+    if (bulk.includes("mads_json")) files.push({name: `${name}_entities.json`, data: JSON.stringify(madsJson(entityResults), null, 2)});
+    if (bulk.includes("mads_csv")) files.push({name: `${name}_entities.csv`, data: entitiesCsv(entityResults)});
+    if (missing.length) files.push({name: "MISSING.tsv", data: "vlid\tcontent\tstatus\n" + missing.join("\n") + "\n"});
+    if (files.length === 1 && !outs.includes("xml")) save(files[0].data, files[0].name);
+    else save(makeZip(files), `${name}.zip`);
+    out.innerHTML = box("ok", `${recs.length} records processed${harvestCtl.signal.aborted ? " (cancelled)" : ""}; download started.`);
+  } finally { $("#c-cancel").hidden = true; harvestCtl = null; }
+}
+
+/* ====================================================================== *
+ *  Platform (details, formats, sets)
+ * ====================================================================== */
+async function showRepo() {
+  const out = $("#r-out");
+  const links = [["Identify", {verb: "Identify"}], ["ListMetadataFormats", {verb: "ListMetadataFormats"}], ["ListSets", {verb: "ListSets"}]]
+    .map(([t, p]) => `<a href="${esc(U.oai(p))}" target="_blank" rel="noopener">${t}</a>`).join(" · ");
+  let ident = "", formats = META_FORMATS.map(f => [f, ""]), sets = S.platform === "e-rara" ? await getSets() : [],
+      note = box("warn", S.platform === "e-rara"
+        ? `Without a proxy, this page shows a snapshot (10/2026). Current details directly at e-rara: ${links}`
+        : `Without a proxy, the details of ${esc(S.platform)} cannot be loaded. Directly at ${esc(S.platform)}: ${links}`);
+  if (hasProxy()) {
+    out.innerHTML = box("", "Loading details …");
+    try {
+      const d = await oai({verb: "Identify"}); const id = d.getElementsByTagNameNS(NS.oai, "Identify")[0];
+      ident = Array.from(id.children).filter(c => c.namespaceURI === NS.oai && ["repositoryName", "baseURL", "adminEmail", "earliestDatestamp", "granularity", "deletedRecord"].includes(c.localName))
+        .map(c => `<dt>${esc(c.localName)}</dt><dd>${esc(txt(c))}</dd>`).join("");
+      const f = await oai({verb: "ListMetadataFormats"});
+      formats = Array.from(f.getElementsByTagNameNS(NS.oai, "metadataFormat")).map(m => [txt(kid(m, NS.oai, "metadataPrefix")), txt(kid(m, NS.oai, "metadataNamespace"))]);
+      sets = await getSets();
+      note = "";
+    } catch (e) { note = box("err", esc(errText(e))); }
+  }
+  out.innerHTML = `${note}${ident ? `<div class="card"><h2>Platform details</h2><dl>${ident}</dl></div>` : ""}
+<div class="card"><h2>Metadata formats</h2><table>${formats.map(([p, n]) => `<tr><td><code>${esc(p)}</code></td><td>${esc(n)}</td></tr>`).join("")}</table>${guideHtml()}</div>
+<div class="card"><h2>Sets (${sets.length || "–"})</h2><table><tr><th>Set</th><th>Name</th><th></th></tr>
+${sets.map(([s, n]) => `<tr><td><code>${esc(s)}</code></td><td>${esc(n)}</td><td><a href="#collection" data-set="${esc(s)}">harvest</a></td></tr>`).join("")}</table></div>`;
+}
+
+/* ====================================================================== *
+ *  Platform-specific: entities, set list
+ * ====================================================================== */
+/* NER/NEL entities (MADS) are only available at e-rara */
+const hasEntities = () => S.platform === "e-rara";
+const ENTITY_KEYS = new Set(["mads", "mads_json", "mads_csv"]);
+const NO_ENTITIES = "Not available at e-manuscripta (no NER/NEL entities)";
+/* Complete full texts per title (Title and Collection): blocked at e-manuscripta (page by page via «Pages») */
+const NO_BULK_TEXT = "Not available here for e-manuscripta – download full texts of individual titles under «Pages»";
+const NO_TITLE_TEXT = "Not available here for e-manuscripta – download the full text page by page under «Pages»";
+const fullTextOff = k => (k === "plain" || k === "alto") && S.platform === "e-manuscripta";
+/* Sets per platform: live with a proxy, otherwise snapshot (e-rara only) or null */
+const setsCache = {};
+async function getSets() {
+  const key = `${S.platform}|${hasProxy() ? "live" : "snap"}`;
+  if (key in setsCache) return setsCache[key];
+  let sets = null;
+  if (hasProxy()) {
+    sets = [];
+    for await (const el of oaiList("ListSets", "set", {})) sets.push([txt(kid(el, NS.oai, "setSpec")), txt(kid(el, NS.oai, "setName"))]);
+  } else if (S.platform === "e-rara") sets = [...SETS_SNAPSHOT];
+  /* sort by name; sets without a name go last */
+  sets?.sort((a, b) => (!a[1] - !b[1]) || (a[1] || a[0]).localeCompare(b[1] || b[0], "de"));
+  return (setsCache[key] = sets);
+}
+const setListUrl = () => U.oai({verb: "ListSets"});
+async function renderSetField() {
+  const box_ = $("#c-setbox"), plat = S.platform;
+  const cur = box_.dataset.plat === plat ? ($("#c-set")?.value || "") : "";   // do not carry the set over to another platform
+  box_.dataset.plat = plat;
+  const input = (hint) => {
+    box_.innerHTML = `<label class="block">Set (code, empty = all sets of the platform)<br><input class="wide" type="text" name="set" id="c-set" value="${esc(cur)}" placeholder="e.g. a code from the set list"></label>
+<p class="hint">${hint} <a href="${esc(setListUrl())}" target="_blank" rel="noopener">Open the set list of ${esc(plat)}</a> (XML).</p>`;
+  };
+  if (!hasProxy() && plat !== "e-rara") { input(`The set list of ${esc(plat)} cannot be loaded without a proxy.`); return; }
+  box_.innerHTML = `<label class="block">Set<br><select class="wide" name="set" id="c-set"><option value="">Loading set list …</option></select></label>`;
+  try {
+    const sets = await getSets();
+    if (S.platform !== plat) return;   // switched in the meantime
+    box_.innerHTML = `<label class="block">Set${hasProxy() ? "" : " <span class='hint'>(snapshot 10/2026)</span>"}<br><select class="wide" name="set" id="c-set"></select></label>`;
+    fillSelect($("#c-set"), [["", "– all sets of the platform –"], ...sets.map(([sp, n]) => [sp, n ? `${n} (${sp})` : sp])], cur);
+  } catch (e) { if (S.platform === plat) input(`Set list could not be loaded: ${esc(errText(e))}.`); }
+}
+
+/* ====================================================================== *
+ *  Wire up the interface
+ * ====================================================================== */
+function fillSelect(sel, opts, value) { sel.innerHTML = opts.map(([v, l]) => `<option value="${esc(v)}"${v === value ? " selected" : ""}>${esc(l)}</option>`).join(""); }
+function renderStatic() {
+  $("#platform").value = S.platform;
+  const ex = EXAMPLES[S.platform] || EXAMPLES["e-rara"];
+  document.querySelectorAll(".pn").forEach(e => e.textContent = S.platform);
+  document.querySelectorAll(".ex-vlid").forEach(e => e.textContent = ex.vlid);
+  document.querySelectorAll(".ex-doi").forEach(e => e.textContent = ex.doi);
+  $("#s-ref").placeholder = `e.g. ${ex.page}`;
+  fillSelect($("#t-format"), META_FORMATS.map(f => [f, f]), $("#t-format").value || "oai_dc");
+  fillSelect($("#c-format"), META_FORMATS.map(f => [f, f]), $("#c-format").value || "oai_dc");
+  renderSetField();
+  const badge = need => need && !hasProxy() ? ` <span class="badge p">Proxy</span>` : "";
+  const why = (name, k) => ENTITY_KEYS.has(k) && !hasEntities() ? NO_ENTITIES : fullTextOff(k) ? (name === "bulk" ? NO_BULK_TEXT : NO_TITLE_TEXT) : "";
+  const opt = (name, k, label, on, need) => why(name, k)
+    ? `<label class="dis" title="${esc(why(name, k))}"><input type="checkbox" name="${name}" value="${k}" disabled> ${esc(label)}</label>`
+    : `<label><input type="checkbox" name="${name}" value="${k}"${on ? " checked" : ""}> ${esc(label)}${badge(need)}</label>`;
+  const checked = new Set([...document.querySelectorAll("#t-items input:checked")].map(i => i.value));
+  $("#t-items").innerHTML = Object.entries(TITLE_ITEMS).map(([k, [l, , p]]) =>
+    opt("item", k, l, checked.size ? checked.has(k) : ["meta_csv", "ris"].includes(k), p)).join("")
+    + (S.platform === "e-manuscripta" ? `<p class="hint" style="grid-column:1/-1;margin:4px 0 0">Full texts and entities are not
+available here for e-manuscripta. The full text of this title – complete or page by page, as text or ALTO – can be
+downloaded under <a href="#pages">Pages</a> (enter the work, image numbers e.g. <code>all</code>).</p>` : "");
+  const bulkOn = new Set([...document.querySelectorAll("#c-bulk input:checked")].map(i => i.value));
+  $("#c-bulk").innerHTML = Object.entries(BULK).map(([k, [l, p]]) => opt("bulk", k, l, bulkOn.has(k), p)).join("")
+    + (S.platform === "e-manuscripta" ? `<p class="hint" style="grid-column:1/-1;margin:4px 0 0">Full texts and entities are not
+available here for e-manuscripta. Full texts of individual titles – complete or page by page, as text or ALTO – can be
+downloaded under <a href="#pages">Pages</a> (enter the work, image numbers e.g. <code>all</code>).</p>` : "");
+  document.querySelectorAll(".guidebox").forEach(b => b.innerHTML = guideHtml());
+  $("#p-proxy").value = S.proxy;
+  $("#proxyinfo").innerHTML = "";
+  $("#c-need").innerHTML = hasProxy() ? "" : box("warn", `This section requires the OAI interface. Without a <a href="#settings">CORS proxy</a>, only a link to the OAI query is available here.`);
+}
+function showTab(name) {
+  if (!document.querySelector(`section[data-tab="${name}"]`)) name = "title";
+  document.querySelectorAll("section[data-tab]").forEach(s => s.classList.toggle("on", s.dataset.tab === name));
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.go === name));
+  if (name === "repo") showRepo();
+}
+function bindForm(id, handler) {
+  const form = $(id);
+  form.addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const action = ev.submitter?.value || "show";
+    const out = form.closest("section").querySelector("[id$=-out]");
+    const buttons = form.querySelectorAll("button[type=submit]");
+    buttons.forEach(b => b.disabled = true);
+    out.innerHTML = box("", "Please wait …");
+    try { await handler(form, action); }
+    catch (e) { out.innerHTML = box("err", esc(errText(e))); }
+    finally { buttons.forEach(b => b.disabled = false); progressEl = null; }
+  });
+}
+
+$("#nav").addEventListener("click", e => { const a = e.target.closest("a[data-go]"); if (a) location.hash = a.dataset.go; });
+window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-set]");
+  if (a) { $("#c-set").value = a.dataset.set; }
+});
+$("#platform").addEventListener("change", e => {
+  S.platform = e.target.value; store.set("erara.platform", S.platform); manifestCache.clear();
+  ["#t-out", "#s-out", "#c-out"].forEach(id => $(id).innerHTML = "");
+  renderStatic(); if (location.hash === "#repo") showRepo();
+});
+/* Show the proxy address masked (like a password); «Show» reveals it temporarily */
+function maskProxy(hide = true) {
+  $("#p-proxy").type = hide ? "password" : "text";
+  $("#p-show").textContent = hide ? "Show" : "Hide";
+  $("#p-show").setAttribute("aria-pressed", String(!hide));
+}
+$("#p-show").addEventListener("click", () => maskProxy($("#p-proxy").type === "text"));
+$("#p-form").addEventListener("submit", e => {
+  e.preventDefault(); S.proxy = $("#p-proxy").value.trim(); store.set("erara.proxy", S.proxy); renderStatic(); maskProxy(true);
+  $("#p-out").innerHTML = box("ok", S.proxy ? "Proxy saved (address hidden)." : "No proxy entered.");
+});
+$("#p-clear").addEventListener("click", () => { S.proxy = ""; store.set("erara.proxy", ""); renderStatic(); maskProxy(true); $("#p-out").innerHTML = box("ok", "Proxy removed."); });
+$("#p-test").addEventListener("click", async () => {
+  const keep = S.proxy; S.proxy = $("#p-proxy").value.trim();
+  $("#p-out").innerHTML = box("", "Testing …");
+  try { const d = await oai({verb: "Identify"}); $("#p-out").innerHTML = box("ok", `Proxy works: ${esc(txt(d.getElementsByTagNameNS(NS.oai, "repositoryName")[0]))}`); }
+  catch (e) { $("#p-out").innerHTML = box("err", esc(errText(e))); }
+  finally { S.proxy = keep; }
+});
+$("#c-cancel").addEventListener("click", () => harvestCtl?.abort());
+bindForm("#t-form", onTitel);
+bindForm("#s-form", onSeiten);
+bindForm("#c-form", onSammlung);
+/* Image options: show/hide custom values, display the resulting IIIF request */
+document.querySelectorAll(".iiif").forEach(root => {
+  const f = root.closest("form");
+  const val = n => f[n].value === "custom" ? (f[n + "_c"].value.trim() || "…") : f[n].value;
+  const upd = () => {
+    for (const n of ["isize", "region"]) f[n + "_c"].closest(".custom").hidden = f[n].value !== "custom";
+    root.querySelector(".iiif-url").textContent =
+      `…/i3f/v21/<page-VLID>/${val("region")}/${val("isize")}/${f.mirror.checked ? "!" : ""}${f.rotation.value}/${f.quality.value}.jpg`;
+  };
+  f.addEventListener("input", upd); f.addEventListener("change", upd); upd();
+});
+(function fillPeriod() {
+  const now = new Date().getFullYear(), years = [["", "–"]];
+  for (let y = now; y >= 2009; y--) years.push([String(y), String(y)]);
+  const months = [["", "whole year"], ...["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    .map((n, i) => [String(i + 1).padStart(2, "0"), n])];
+  document.querySelectorAll("select.yr").forEach(s => fillSelect(s, years, ""));
+  document.querySelectorAll("select.mo").forEach(s => fillSelect(s, months, ""));
+})();
+renderStatic();
+showTab(location.hash.slice(1) || "title");
+</script>
+</body>
+</html>
