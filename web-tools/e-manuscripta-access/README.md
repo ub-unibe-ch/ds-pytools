@@ -1,4 +1,18 @@
+> [!WARNING]
+> **This notebook is no longer maintained.** It has been replaced by **[erara-explorer](../../browser-tools/erara-explorer/)** ([source repository](https://github.com/k-woitas/erara-explorer)), a browser tool for downloading metadata, full texts, entities and images from e-rara and e-manuscripta without programming.
+>
+> **▶ Open the tool:** [English](https://k-woitas.github.io/erara-explorer/) · [Deutsch](https://k-woitas.github.io/erara-explorer/de/)
+>
+> The notebook and the description below are kept for reference only and are no longer updated.
+
 # e-manuscripta: accessing metadata and fulltexts
+
+## Contents
+
+- [0. Introduction](#0-introduction)
+- [1. Metadata access with Polymatheia](#1-metadata-access-with-polymatheia)
+- [2. Direct metadata access via OAI-PMH](#2-direct-metadata-access-via-oai-pmh)
+- [3. Download fulltext files from e-manuscripta website](#3-download-fulltext-files-from-e-manuscripta-website)
 
 The Python Jupyer notebook [e_manuscripta_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-manuscripta-access/e_manuscripta_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-manuscripta](https://www.e-manuscripta.ch/)**, the platform for manuscript material from Swiss libraries and archives. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-manuscripta service for retrieving metadata in different formats, and the e-manuscripta website in addition for downloading fulltexts.
 

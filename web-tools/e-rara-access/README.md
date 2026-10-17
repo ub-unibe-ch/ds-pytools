@@ -1,4 +1,18 @@
+> [!WARNING]
+> **This notebook is no longer maintained.** It has been replaced by **[erara-explorer](../../browser-tools/erara-explorer/)** ([source repository](https://github.com/k-woitas/erara-explorer)), a browser tool for downloading metadata, full texts, entities and images from e-rara and e-manuscripta without programming.
+>
+> **▶ Open the tool:** [English](https://k-woitas.github.io/erara-explorer/) · [Deutsch](https://k-woitas.github.io/erara-explorer/de/)
+>
+> The notebook and the description below are kept for reference only and are no longer updated.
+
 # e-rara: accessing metadata and fulltexts
+
+## Contents
+
+- [0. Introduction](#0-introduction)
+- [1. Metadata access with Polymatheia](#1-metadata-access-with-polymatheia)
+- [2. Direct metadata access via OAI-PMH](#2-direct-metadata-access-via-oai-pmh)
+- [3. Download fulltext files from e-rara website](#3-download-fulltext-files-from-e-rara-website)
 
 The Python Jupyer notebook [e_rara_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-rara-access/e_rara_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-rara](https://www.e-rara.ch/)**, the platform for digitized rare books from Swiss institutions. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-rara service for retrieving metadata in different formats, and the e-rara website in addition for downloading fulltexts.
 
