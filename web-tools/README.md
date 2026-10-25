@@ -1,9 +1,17 @@
 # Python Toolbox: Web-Tools
 
-...some tools for automated web-scraping, accessing APIs and downloading web content in Python...
+> [!WARNING]
+> **This folder is deprecated.** The Python notebooks here are no longer maintained or updated. Please use the new **[browser tools](../browser-tools/)** instead. They run directly in the browser, with no programming and no installation.
+>
+> | Deprecated notebook | Use instead |
+> |---|---|
+> | [e-rara-access](e-rara-access/) | [erara-explorer](../browser-tools/erara-explorer/) · [open tool](https://k-woitas.github.io/erara-explorer/) |
+> | [e-manuscripta-access](e-manuscripta-access/) | [erara-explorer](../browser-tools/erara-explorer/) · [open tool](https://k-woitas.github.io/erara-explorer/) |
+> | [e-periodica-access](e-periodica-access/) | [eperiodica-explorer](../browser-tools/eperiodica-explorer/) · [open tool](https://k-woitas.github.io/eperiodica-explorer/) |
+>
+> The notebooks and the description below are kept for reference only.
 
-> [!TIP]
-> **No programming needed?** For e-rara and e-manuscripta, use [erara-explorer](../browser-tools/erara-explorer/) in the browser instead. It replaces the notebooks `e-rara-access` and `e-manuscripta-access` in this folder, which are no longer updated.
+...some tools for automated web-scraping, accessing APIs and downloading web content in Python...
 
 This folder contains examples of how to solve various problems in retrieving web content using Python libraries.
 
