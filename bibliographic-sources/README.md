@@ -1,4 +1,4 @@
-# 🎓📚 Literature Handling
+# 🎓📚 Bibliographic Sources
 
 Find and mine scholarly publication data and manage references with Python tools!
 
