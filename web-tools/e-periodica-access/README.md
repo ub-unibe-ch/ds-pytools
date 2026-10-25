@@ -1,4 +1,18 @@
+> [!WARNING]
+> **This notebook is no longer maintained.** It has been replaced by **[eperiodica-explorer](../../browser-tools/eperiodica-explorer/)** ([source repository](https://github.com/k-woitas/eperiodica-explorer)), a browser tool for downloading metadata, full texts and images from e-periodica without programming.
+>
+> **▶ Open the tool:** [English](https://k-woitas.github.io/eperiodica-explorer/) · [Deutsch](https://k-woitas.github.io/eperiodica-explorer/de/)
+>
+> The notebook and the description below are kept for reference only and are no longer updated.
+
 # e-periodica: accessing metadata and fulltexts
+
+## Contents
+
+- [0. Introduction](#0-introduction)
+- [1. Metadata access with Polymatheia](#1-metadata-access-with-polymatheia)
+- [2. Direct metadata access via OAI-PMH](#2-direct-metadata-access-via-oai-pmh)
+- [3. Download fulltext files from e-periodica website](#3-download-fulltext-files-from-e-periodica-website)
 
 The Python Jupyer notebook [e_periodica_metadata_fulltext.ipynb](https://github.com/ub-unibe-ch/ds-pytools/blob/main/web-tools/e-periodica-access/e_periodica_metadata_fulltext.ipynb) aims to help you with **accessing metadata and fulltexts of [e-periodica](https://www.e-periodica.ch/)**, the platform for digitized and digital journals from Switzerland. It uses the [OAI-PMH](https://www.openarchives.org/pmh/) interface of the e-periodica service for retrieving metadata in different formats, and the e-periodica website in addition for downloading fulltexts.
 

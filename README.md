@@ -23,4 +23,4 @@ Kindly brought to you by [Digital Scholarship Services](https://www.ub.unibe.ch/
 | [OCR](OCR/) | Text recognition with Tesseract, segmentation, template matching, machine-learning character classification | Python notebooks and scripts |
 | [NLP](NLP/) | Basic natural language processing with NLTK | Python notebooks and scripts |
 | **No-code browser tools** | | |
-| [browser-tools](browser-tools/) | [erara-explorer](browser-tools/erara-explorer/): download metadata, full texts, entities and images from e-rara and e-manuscripta | HTML, runs in the browser |
+| [browser-tools](browser-tools/) | [erara-explorer](browser-tools/erara-explorer/): download metadata, full texts, entities and images from e-rara and e-manuscripta; [eperiodica-explorer](browser-tools/eperiodica-explorer/): download metadata, full texts and images from e-periodica | HTML, runs in the browser |

@@ -3,7 +3,7 @@
 ...some tools for automated web-scraping, accessing APIs and downloading web content in Python...
 
 > [!TIP]
-> **No programming needed?** For e-rara and e-manuscripta, use [erara-explorer](../browser-tools/erara-explorer/) in the browser instead. It replaces the notebooks `e-rara-access` and `e-manuscripta-access` in this folder, which are no longer updated.
+> **No programming needed?** For e-rara and e-manuscripta, use [erara-explorer](../browser-tools/erara-explorer/) in the browser instead; for e-periodica, use [eperiodica-explorer](../browser-tools/eperiodica-explorer/). They replace the notebooks `e-rara-access`, `e-manuscripta-access` and `e-periodica-access` in this folder, which are no longer updated.
 
 This folder contains examples of how to solve various problems in retrieving web content using Python libraries.
 
