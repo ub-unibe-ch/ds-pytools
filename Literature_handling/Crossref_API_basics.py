@@ -16,9 +16,11 @@
 # Required packages and installation (in addition to standard packages):
 # 
 #      pip install crossref-commons
-#      
+# 
 #      pip install habanero
-#  
+# 
+# We recommend installing the packages in a fresh virtual environment (`python -m venv`), since the `crossref-commons` dependency `ratelimit` may fail to build with outdated system `setuptools`. Please note that `crossref-commons` is no longer actively maintained (last release 2020), whereas `habanero` is.
+# 
 
 # #### Check python version and import general packages
 
@@ -47,13 +49,13 @@ from crossref_commons.relations import get_related
 from crossref_commons.iteration import iterate_publications_as_json
 
 
-# Setting up the crossref user agent below is optional, but may help to get more reliable server responses
+# Setting up the crossref user agent below is optional, but strongly recommended: Requests including a **real e-mail address** (`mailto`) are routed to the "polite pool" with higher rate limits. Since 2025/2026 Crossref limits requests per second by request type (single records vs. lists of records); see [Access and authentication](https://www.crossref.org/documentation/retrieve-metadata/rest-api/access-and-authentication/). The current limits are also returned in the response headers (`x-rate-limit-limit`, `x-rate-limit-interval`, `x-rate-limit-type`).
 
 # In[3]:
 
 
 # setup crossref user agent using environmental variables
-os.environ['CR_API_AGENT'] = "polite user agent; including mailto:foo@bar.com"
+os.environ['CR_API_AGENT'] = "ds-pytools tutorial (mailto:your.name@example.org)"
 os.environ.get('CR_API_AGENT')
 
 
@@ -61,7 +63,7 @@ os.environ.get('CR_API_AGENT')
 
 
 # setup crossref user agent using environmental variables
-os.environ['CR_API_MAILTO'] = "foo@bar.com"
+os.environ['CR_API_MAILTO'] = "your.name@example.org"
 os.environ.get('CR_API_MAILTO')
 
 
@@ -131,7 +133,7 @@ ref['published']
 # ### 1.3 Iterate queries with filter options
 # 
 # Crossref allows to query specific information using different filter options. Crossref filters are described here:
-# https://docs.ropensci.org/rcrossref/articles/crossref_filters.html
+# https://www.crossref.org/documentation/retrieve-metadata/rest-api/ and https://api.crossref.org/swagger-ui/index.html
 
 # #### Example 1): Filter for a specific funder defined by its funder ID and reference type 'journal-article'.
 
@@ -155,8 +157,13 @@ queries = {'query.author': 'muller', 'query.affiliation': 'university'}
 
 
 # Now iterate over search results and print the DOI for each result
-for p in iterate_publications_as_json(max_results=189, filter=filter, queries=queries):
-  print(p['DOI'])
+# crossref-commons expects a "next-cursor" also on the last (empty) result page, which the
+# Crossref API does not deliver anymore - the KeyError then just signals that all results were retrieved
+try:
+    for p in iterate_publications_as_json(max_results=189, filter=filter, queries=queries):
+      print(p['DOI'])
+except KeyError:
+    pass
 
 
 # #### Example 2): Filter for specific author defined by ORCID and journal articles
@@ -181,8 +188,13 @@ queries = {'query.affiliation': 'Texas', }
 
 
 # Do query and get results as DOI
-for p in iterate_publications_as_json(max_results=189, filter=filter, queries=queries):
-  print(p['DOI'])
+# crossref-commons expects a "next-cursor" also on the last (empty) result page, which the
+# Crossref API does not deliver anymore - the KeyError then just signals that all results were retrieved
+try:
+    for p in iterate_publications_as_json(max_results=189, filter=filter, queries=queries):
+      print(p['DOI'])
+except KeyError:
+    pass
 
 
 # Theses were just some of the many query and filter options provided by Crossref Commons. For more options check the documentation page: https://gitlab.com/crossref/crossref_commons_py
@@ -216,20 +228,18 @@ from habanero import counts
 # In[20]:
 
 
-cr = Crossref()
-# set a different base url
-Crossref(base_url = "http://some.other.url")
-# set an api key
-Crossref(api_key = "123456")
-# set a mailto address to get into the "polite pool"
-Crossref(mailto = "foo@bar.com")
-# set an additional user-agent string
-Crossref(ua_string = "foo bar")
+# set a mailto address to get into the "polite pool" and an additional user-agent string
+cr = Crossref(mailto = "your.name@example.org", ua_string = "ds-pytools tutorial")
+
+# further options:
+# set a different base url:                     Crossref(base_url = "https://api.crossref.org")
+# set an API key for Crossref Metadata Plus:    Crossref(api_key = "...")
+cr
 
 
 # ### 2.2  Citation counts
 # 
-# Get the number of citations for a given paper defined by its DOI from the CrossRef database.
+# Get the number of citations for a given paper defined by its DOI from the CrossRef database. The REST API delivers it in the field `is-referenced-by-count`. Habanero's `counts.citation_count()` uses the older OpenURL interface instead and may return deviating numbers.
 
 # In[21]:
 
@@ -241,8 +251,11 @@ doi_var = '10.1371/journal.pone.0042793'
 # In[22]:
 
 
-# get citation counts
-print("number of citations = ", counts.citation_count(doi = doi_var))
+# get citation counts via the REST API
+print("number of citations = ", cr.works(ids = doi_var)['message']['is-referenced-by-count'])
+
+# alternative via OpenURL interface:
+# print("number of citations = ", counts.citation_count(doi = doi_var))
 
 
 # ### 2.3 Queries
@@ -315,16 +328,16 @@ query_result['items'][0]['DOI']
 query_result['items'][2]['container-title']
 
 
-# We can also make a list of all the 10 results, selecting some information fields to be displayed. Here we make a list of the 10 result with publisher, DOI, author list and title.
+# We can also make a list of all the 10 results, selecting some information fields to be displayed. Here we make a list of the 10 result with publisher, DOI, author list and title. Not every record has all fields (e.g. authors), so we use `.get()` with a default value.
 
 # In[31]:
 
 
 # Display list with selected fields
 for n, item in enumerate(query_result['items']):
-    print(n, '\t Publisher =',  item['publisher'], ',\tDOI =', item['DOI'])
-    print(item['author'])
-    print(item['title'])
+    print(n, '\t Publisher =',  item.get('publisher'), ',\tDOI =', item['DOI'])
+    print(item.get('author', []))
+    print(item.get('title'))
     print('---------------------------------------------------------------------------------------------------')
 
 
@@ -364,11 +377,11 @@ print("total results = ", query2_result['total-results'])
 
 # display results as a list
 for n, item in enumerate(query2_result['items']):
-    print(n, '\t', 'publication date =', item['published']['date-parts'])
-    authors = [[item['author'][x]['given']+" "+item['author'][x]['family']] for x in range(len(item['author']))]
+    print(n, '\t', 'publication date =', item.get('published', {}).get('date-parts'))
+    authors = [[a.get('given', '') + " " + a.get('family', '')] for a in item.get('author', [])]
     print(authors)
-    print(item['title'])
-    print(item['container-title'], " volume =", item['volume'], ", issue =", item['issue'])
+    print(item.get('title'))
+    print(item.get('container-title'), " volume =", item.get('volume'), ", issue =", item.get('issue'))
     print('---------------------------------------------------------------------------------------------------')
 
 
