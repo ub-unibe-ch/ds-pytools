@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data for TDM and AI</title>
+<style>
+:root{--red:#d6002b;--red-dark:#ab0022;--text:#1e1e1e;--muted:#5a5a5a;--line:#e4e4e4;--panel:#f5f5f5;
+--ok-bg:#e8f3e1;--ok:#2f6b1f;--warn-bg:#fff4dc;--warn:#8a5a00;--no-bg:#fbe5e9;--no:#ab0022;--na-bg:#eeeeee;--na:#555;--info-bg:#eff4f6;--info:#2b5d74}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--text);font:16px/1.55 "Frutiger Neue","FrutigerNeueLTW06-Regular",Arial,Helvetica,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.9rem;font-weight:normal;margin:0 0 8px}
+h2{font-size:1.35rem;font-weight:normal;margin:40px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--red)}
+h3{font-size:1rem;margin:20px 0 6px;color:var(--red-dark)}
+p.lead{color:var(--muted);max-width:760px}
+a{color:var(--red)}a:hover{color:var(--red-dark)}
+.notice{border:1px solid var(--red);border-left:6px solid var(--red);padding:12px 16px;margin:18px 0;max-width:860px}
+.notice strong{color:var(--red-dark)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.9rem;color:var(--muted);margin:12px 0 0}
+.tag{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:3px;white-space:nowrap;font-weight:bold}
+.ok{background:var(--ok-bg);color:var(--ok)}.warn{background:var(--warn-bg);color:var(--warn)}.no{background:var(--no-bg);color:var(--no)}.na{background:var(--na-bg);color:var(--na)}.info{background:var(--info-bg);color:var(--info)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.filters button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:#fff;padding:5px 12px;border-radius:16px;cursor:pointer}
+.filters button[aria-pressed=true]{border-color:var(--red);color:var(--red)}
+.flabel{align-self:center;font-size:.9rem;font-weight:bold;color:var(--muted);margin-right:2px}
+#datafilter{margin-top:-6px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th{text-align:left;font-weight:bold;background:var(--panel);padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.group th{background:#fff;color:var(--red-dark);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;padding:18px 10px 6px;border-bottom:1px solid var(--red)}
+.small{font-size:.8rem;color:var(--muted)}
+details.pub{border:1px solid var(--line);border-left:4px solid var(--red);margin:14px 0;background:#fff}
+details.pub>summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+details.pub>summary::-webkit-details-marker{display:none}
+details.pub>summary::before{content:"+";color:var(--red);font-size:1.3rem;width:14px}
+details.pub[open]>summary::before{content:"–"}
+summary .name{font-size:1.15rem}
+.body{padding:0 20px 18px 42px}
+.tool{background:var(--info-bg);border-left:3px solid var(--info);padding:10px 14px;margin:6px 0 4px}
+.tool ul{margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:4px 28px}
+.body ul{margin:4px 0;padding-left:20px}.body li{margin:3px 0}
+.src{font-size:.8rem;color:var(--muted)}
+code{font-size:.85em;background:var(--panel);padding:1px 4px}
+footer{margin-top:48px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:600px){.body{padding:0 14px 16px 18px}.grid{grid-template-columns:1fr}}
+.ask{background:#fff;color:var(--info);border:1px solid var(--info);font-weight:normal}
+.askbox{background:var(--info-bg);border-left:3px solid var(--info);padding:10px 14px;margin:6px 0 4px}
+.topbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:24px}
+.org a{color:inherit;text-decoration:none}.org a:hover{text-decoration:underline}
+.org{margin:0;font-size:.9rem;font-weight:bold;color:var(--red-dark);letter-spacing:.02em}
+.lang{font-size:.9rem;text-decoration:none;border:1px solid var(--line);padding:3px 10px;border-radius:3px}
+.lang:hover{border-color:var(--red)}
+p.meta{font-size:.85rem;color:var(--muted);margin:-4px 0 0}
+.h2row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--red);margin:40px 0 12px}
+.h2row h2{border:0;margin:0;padding-bottom:6px}
+.toggleall{font:inherit;font-size:.85rem;border:1px solid var(--line);background:#fff;padding:4px 12px;border-radius:16px;cursor:pointer;margin-bottom:6px}
+.toggleall:hover{border-color:var(--red);color:var(--red)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+footer p{margin:6px 0}
+@media print{.filters,.toggleall,.lang{display:none}details.pub{break-inside:avoid}a{color:inherit}}
+</style>
+<meta name="description" content="Interfaces, formats and contract terms for text and data mining (TDM) and AI with publishers and databases licensed by the University Library Bern.">
+<link rel="alternate" hreflang="de" href="index.html">
+<link rel="alternate" hreflang="en" href="en.html">
+</head>
+<body>
+<main>
+<div class="topbar"><p class="org"><a href="https://www.ub.unibe.ch/index_eng.html">University Library Bern</a> · <a href="https://www.ub.unibe.ch/services/digital_scholarship/index_eng.html">Digital Scholarship</a></p><a class="lang" href="index.html" hreflang="de" lang="de">Deutsch</a></div>
+<h1>Data for TDM and AI: Access and Conditions</h1>
+<p class="lead">Interfaces, formats and contract terms at a glance.</p>
+<p class="meta">As of 3 November 2026 · 20 publishers and 5 databases</p>
+
+<div class="notice" role="note"><strong>Important:</strong> The information on contract terms is for rough orientation only and does not constitute legal advice. Contract terms take precedence over information on provider websites. Please clarify any TDM or AI use of licensed content in advance with <a href="mailto:ds.ub@unibe.ch">Digital Scholarship (ds.ub@unibe.ch)</a>.</div>
+
+<div class="legend">
+ <span><span class="tag ok">permitted</span></span>
+ <span><span class="tag warn">conditional</span></span>
+ <span><span class="tag no">not permitted</span> without an additional agreement</span>
+ <span><span class="tag na">not specified</span> not covered by the contract</span>
+ <span><span class="tag info">Crossref</span> TDM links for ≥ 80 % of articles</span>
+</div>
+
+<h2>Overview</h2>
+<div class="filters" id="accessfilter" role="group" aria-label="Access">
+ <span class="flabel">Access:</span>
+ <button aria-pressed="true" data-f="all">All</button>
+ <button aria-pressed="false" data-f="api">API</button>
+ <button aria-pressed="false" data-f="crossref">via Crossref</button>
+ <button aria-pressed="false" data-f="request">on request</button>
+ <button aria-pressed="false" data-f="tool">Tools</button>
+ <button aria-pressed="false" data-f="oa">Open Access</button>
+ <button aria-pressed="false" data-f="db">Database</button>
+</div>
+<div class="filters" id="datafilter" role="group" aria-label="Data">
+ <span class="flabel">Data:</span>
+ <button aria-pressed="true" data-d="all">All</button>
+ <button aria-pressed="false" data-d="abstract">Abstracts</button>
+ <button aria-pressed="false" data-d="fulltext">Full texts</button>
+ <button aria-pressed="false" data-d="authors">Authors</button>
+ <button aria-pressed="false" data-d="citations">Citations</button>
+ <button aria-pressed="false" data-d="funder">Funders</button>
+ <button aria-pressed="false" data-d="journals">Journals/Publishers</button>
+</div>
+<div class="tablewrap">
+<table id="overview">
+<thead><tr><th>Provider</th><th>TDM</th><th>AI</th><th>Access</th><th>Formats</th><th>Quota</th></tr></thead>
+<tbody>
+<tr class="group"><th colspan="6">Publishers</th></tr>
+<tr data-tags="oa" data-types="fulltext"><td><a href="#acm">ACM</a><br><span class="small">ACM Digital Library</span></td><td><span class="tag ok">permitted</span></td><td><span class="tag na">not specified</span></td><td>Open Access; API per contract, no public documentation</td><td>–</td><td>no volume limit</td></tr>
+<tr data-tags="request" data-types="fulltext"><td><a href="#acs">ACS</a></td><td><span class="tag no">not permitted</span></td><td><span class="tag no">not permitted</span></td><td>no API; separate contract only</td><td>JATS XML (journals), BITS XML (books), by agreement</td><td>–</td></tr>
+<tr data-tags="" data-types="fulltext"><td><a href="#aip">AIP Publishing</a></td><td><span class="tag ok">permitted</span></td><td><span class="tag na">not specified</span></td><td>API per contract, no public documentation</td><td>–</td><td>as specified by AIP</td></tr>
+<tr data-tags="api request" data-types="abstract authors fulltext citations funder"><td><a href="#aps">APS</a><br><span class="small">Physical Review</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>Harvest API; bulk data sets (metadata, citations) on application</td><td>JSON, XML, PDF, BagIt</td><td>–</td></tr>
+<tr data-tags="" data-types="fulltext"><td><a href="#cup">CUP</a><br><span class="small">Cambridge Core</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>no API; download via Cambridge Core</td><td>PDF</td><td>500 PDFs/hour</td></tr>
+<tr data-tags="api crossref tool" data-types="abstract authors fulltext citations"><td><a href="#elsevier">Elsevier</a><br><span class="small">ScienceDirect</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag ok">permitted</span><br><span class="small">closed tools</span></td><td>ScienceDirect APIs; API key</td><td>XML, JSON, Atom, PDF, TXT<br><span class="small">(tool: CSV, JSON, XML, TXT)</span></td><td>50,000 full texts/week</td></tr>
+<tr data-tags="oa" data-types="fulltext"><td><a href="#frontiers">Frontiers</a></td><td><span class="tag ok">permitted</span><br><span class="small">CC BY</span></td><td><span class="tag ok">permitted</span><br><span class="small">CC BY</span></td><td>no API; download from the article pages</td><td>PDF, XML; EPUB (e-books)</td><td>–</td></tr>
+<tr data-tags="api tool request" data-types="abstract authors fulltext"><td><a href="#ieee">IEEE</a><br><span class="small">IEEE Xplore</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>API key; full text with authorization key</td><td>JSON, XML</td><td>10 requests/s, 200/day</td></tr>
+<tr data-tags="request" data-types="abstract authors fulltext citations"><td><a href="#iop">IOP Publishing</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>no API; delivery on request via sFTP or another agreed route</td><td>XML, PDF</td><td>–</td></tr>
+<tr data-tags="request" data-types="fulltext"><td><a href="#karger">Karger</a></td><td><span class="tag ok">permitted</span></td><td><span class="tag ok">permitted</span></td><td>no API; TDM after request; FTP data service per website (for industry customers)</td><td>XML, PDF</td><td>–</td></tr>
+<tr data-tags="" data-types="fulltext"><td><a href="#lww">LWW</a><br><span class="small">Wolters Kluwer Health</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>no API</td><td>–</td><td>–</td></tr>
+<tr data-tags="request oa" data-types="abstract fulltext"><td><a href="#mdpi">MDPI</a></td><td><span class="tag ok">permitted</span></td><td><span class="tag ok">permitted</span></td><td>OAI-PMH open; FTP on request</td><td>Dublin Core, AGRIS; PDF, XML</td><td>–</td></tr>
+<tr data-tags="request" data-types="fulltext"><td><a href="#oup">OUP</a><br><span class="small">Oxford Academic</span></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>no API; further access after whitelisting</td><td>–</td><td>–</td></tr>
+<tr data-tags="api oa" data-types="abstract authors fulltext citations funder"><td><a href="#plos">PLOS</a></td><td><span class="tag ok">permitted</span><br><span class="small">CC BY</span></td><td><span class="tag ok">permitted</span><br><span class="small">CC BY</span></td><td>Search API without key; complete download allofPLOS; also via PubMed Central</td><td>XML, JSON; JATS XML</td><td>7200 requests/day, 10/min</td></tr>
+<tr data-tags="request" data-types="fulltext"><td><a href="#rsc">RSC</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>no API; delivery route by agreement</td><td>–</td><td>–</td></tr>
+<tr data-tags="crossref" data-types="fulltext"><td><a href="#sage">Sage</a></td><td><span class="tag na">not specified</span></td><td><span class="tag na">not specified</span></td><td>no API; via Crossref links</td><td>as per Crossref link</td><td>1 request every 2–6 s</td></tr>
+<tr data-tags="api crossref tool request" data-types="abstract fulltext"><td><a href="#springer">Springer Nature</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>API key, TDM key on request</td><td>JATS XML, JSON, XML<br><span class="small">(tool: CSV, JSON, JATS XML, TXT)</span></td><td>500 hits/day</td></tr>
+<tr data-tags="request" data-types="fulltext"><td><a href="#tandf">Taylor &amp; Francis</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>no API; register project in advance</td><td>–</td><td>–</td></tr>
+<tr data-tags="" data-types=""><td><a href="#ucpress">UC Press</a></td><td><span class="tag na">not specified</span></td><td><span class="tag na">not specified</span></td><td>no API; only individual titles licensed</td><td>–</td><td>–</td></tr>
+<tr data-tags="api tool" data-types="fulltext"><td><a href="#wiley">Wiley</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>TDM token (click-through)</td><td>PDF</td><td>3 requests/s</td></tr>
+<tr class="group"><th colspan="6">Databases and metadata services</th></tr>
+<tr data-tags="api db" data-types="abstract authors citations funder journals"><td><a href="#crossref">Crossref</a></td><td><span class="tag ok">permitted</span><br><span class="small">metadata</span></td><td><span class="tag na">not specified</span></td><td>REST API without key; <code>mailto</code> recommended; Public Data Files (dump)</td><td>JSON</td><td>5–10 requests/s</td></tr>
+<tr data-tags="api tool db" data-types="abstract authors citations funder journals"><td><a href="#dimensions">Dimensions</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>Analytics API; API key, used to obtain a token (valid for about 2 hours)</td><td>JSON</td><td>30 requests/min</td></tr>
+<tr data-tags="api db" data-types="abstract authors citations funder journals"><td><a href="#openalex">OpenAlex</a></td><td><span class="tag ok">permitted</span><br><span class="small">CC0</span></td><td><span class="tag ok">permitted</span><br><span class="small">CC0</span></td><td>REST API; free key recommended; data dump (quarterly)</td><td>JSON</td><td>10–30 requests/s</td></tr>
+<tr data-tags="api oa db" data-types="abstract fulltext"><td><a href="#pmc">PubMed Central</a></td><td><span class="tag ok">permitted</span></td><td><span class="tag warn">conditional</span><br><span class="small">depending on licence</span></td><td>Cloud (AWS), OAI-PMH, E-Utilities, BioC API</td><td>JATS XML, TXT, PDF, BioC (XML, JSON); Dublin Core</td><td>–</td></tr>
+<tr data-tags="api tool db" data-types="abstract authors citations funder journals"><td><a href="#scopus">Scopus</a></td><td><span class="tag na">not specified</span></td><td><span class="tag ok">permitted</span></td><td>Scopus APIs; API key</td><td>JSON, Atom, XML</td><td>20,000 searches/week</td></tr>
+</tbody></table>
+</div>
+
+<div class="h2row"><h2>Details by publisher</h2><button type="button" class="toggleall" data-open="Expand all" data-close="Collapse all">Expand all</button></div>
+
+<details class="pub" id="acm">
+<summary><span class="name">Association for Computing Machinery (ACM)</span><span class="tag ok">TDM permitted</span><span class="tag na">AI not specified</span><span class="tag info">Crossref partly: 39 % / 93 %</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://libraries.acm.org/digital-library/policies">ACM Digital Library: Policies</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API documentation; per contract, API provided by ACM or an agreed third-party provider</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>ACM Digital Library fully Open Access since 2026, with basic TDM functionality</li>
+  <li>Per contract at no additional cost and without volume limit</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>TDM for academic research and education</li>
+  <li>TDM results may be shared as long as no substitute product for third parties is created</li>
+  <li>No robots or agents outside the designated channels</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 39 % of recent and 93 % of older articles; licence information for 58 % and 94 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="acs">
+<summary><span class="name">American Chemical Society (ACS)</span><span class="tag no">TDM not permitted</span><span class="tag no">AI not permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://solutions.acs.org/solutions/text-and-data-mining/">ACS Text and Data Mining</a></li>
+  <li><a href="https://solutions.acs.org/research-areas/aitools">AI Summarization License</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>TDM for a fee by agreement; sample files in JATS XML (journals) and BITS XML (books)</li>
+  <li>AI Summarization License as an add-on for AI summaries; no training of language models</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Data mining, machine indexing and aggregation only with a separate agreement</li>
+  <li>No bulk downloads, no central storage</li>
+  <li>Individual articles for personal research and teaching only</li>
+ </ul>
+ <p class="src">Crossref: no text-mining links; licence information for 94 % of recent and 19 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="aip">
+<summary><span class="name">AIP Publishing</span><span class="tag ok">TDM permitted</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul><li>no public API documentation</li></ul></div>
+ <div><h3>API key</h3><ul><li>TDM only via an API service approved by AIP</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>No public information on formats</li>
+  <li>Load limits and download rates as specified by AIP</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Scholarly purposes only</li>
+  <li>Storage on the secure network or another secure location; results not to be made publicly available on the internet</li>
+  <li>No systematic downloading outside the API</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 15 % of recent and 4 % of older articles; licence information for 34 % and 5 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="aps">
+<summary><span class="name">American Physical Society (APS)</span><span class="tag warn">TDM conditional</span><span class="tag warn">AI conditional</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://harvest.aps.org/docs/harvest-api">APS Harvest API</a></li>
+  <li><a href="https://journals.aps.org/datasets/">APS Data Sets</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>Access via CHORUS token, API key or the university's IP range</li>
+  <li>Open Access articles without authentication</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Harvest API:</strong> article lists and individual articles by DOI; APS Article JSON, XML, PDF or BagIt package (full-text XML, metadata, figures, PDF)</li>
+  <li><strong>APS Data Sets:</strong> metadata and citation pairs as a complete data set, on application</li>
+ </ul>
+ <h3>Contract terms</h3>
+ <p class="askbox">The contract terms are not public. Please ask <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <p class="src">Crossref: no text-mining links; licence information for 100 % of recent and 99 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="cup">
+<summary><span class="name">Cambridge University Press (CUP)</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://www.cambridge.org/core/open-research/text-and-data-mining">Cambridge Core: Text and Data Mining</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no API; download via the Cambridge Core website</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>Download, extraction, storage and indexing for TDM permitted</li>
+  <li>Max. 500 PDFs per hour</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Delete copies once the analysis is complete</li>
+  <li>Results only on personal devices or on the university's secure network</li>
+  <li>No crawling except for federated search and discovery</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 3 % of recent and 5 % of older articles; licence information for 100 % and 97 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="elsevier">
+<summary><span class="name">Elsevier (ScienceDirect)</span><span class="tag warn">TDM conditional</span><span class="tag ok">AI permitted</span><span class="tag info">Crossref 100 % / 98 %</span></summary>
+<div class="body">
+ <div class="tool"><strong>Download tool:</strong> <a href="https://k-woitas.github.io/elsevier-tool/">Elsevier Full-Text Downloader</a>, runs in the browser, retrieval by DOI or PII.
+  <ul><li>Metadata with abstracts: CSV, JSON</li><li>Full texts: XML (original), TXT</li><li>Licensed full texts only on the campus network or via VPN</li></ul></div>
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://dev.elsevier.com/">Elsevier Developer Portal</a></li>
+  <li><a href="https://dev.elsevier.com/sd_apis.html">ScienceDirect APIs</a> · <a href="https://dev.elsevier.com/interactive.html">Swagger portal</a></li>
+  <li><a href="https://dev.elsevier.com/tdm_service.html">TDM terms</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>Account on the Developer Portal and <a href="https://dev.elsevier.com/apikey/manage">API key</a></li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>ScienceDirect Search API:</strong> metadata; 20,000 requests/week, 2 per second, max. 200 hits per query</li>
+  <li><strong>Article Metadata API:</strong> metadata with abstract (COMPLETE view); JSON, Atom, XML; max. 6000 results</li>
+  <li><strong>Article Retrieval API:</strong> full texts as XML, JSON, PDF, TXT; 50,000/week, unlimited with a text-mining key at 10 requests/s</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>University members only, academic research only, non-commercial</li>
+  <li>AI use in a closed AI tool permitted, including training</li>
+  <li>Delete the data set after the project ends; no crawling</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 100 % of recent and 98 % of older articles; licence information for 100 % and 98 % respectively. The Article Retrieval API also accepts a Crossref token.</p>
+</div>
+</details>
+
+<details class="pub" id="frontiers">
+<summary><span class="name">Frontiers</span><span class="tag ok">TDM permitted</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://www.frontiersin.org/">Frontiers</a></li>
+  <li><a href="https://www.frontiersin.org/about/open-access">Open access policy</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no API; freely accessible</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>Download from the article pages as PDF and XML (e-books also as EPUB)</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No contract; content under CC BY: use with attribution</li>
+ </ul>
+ <p class="src">Crossref: hardly any text-mining links (0 % / 3 %); licence information for 100 % of recent and 75 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="ieee">
+<summary><span class="name">IEEE (IEEE Xplore)</span><span class="tag warn">TDM conditional</span><span class="tag warn">AI conditional</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://developer.ieee.org/">IEEE Xplore API</a> · <a href="https://developer.ieee.org/docs">available APIs</a></li>
+  <li>SDKs: <a href="https://developer.ieee.org/Python3_Software_Development_Kit">Python 3</a>, <a href="https://developer.ieee.org/Java_Software_Development_Kit">Java</a>, <a href="https://developer.ieee.org/PHP_Software_Development_Kit">PHP</a></li>
+  <li><a href="https://developer.ieee.org/Dynamic_Query_Tool">Dynamic Query Tool</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li><a href="https://developer.ieee.org/member/register">Registration</a> and API key</li>
+  <li>Full texts: additional authorization key from IEEE</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Metadata Search API:</strong> metadata with abstracts; JSON or XML; max. 200 hits per query, up to 25 DOIs per request</li>
+  <li><strong>Open Access API / Full-Text Access API:</strong> full texts by article number; JSON or XML</li>
+  <li>Max. 10 requests per second and 200 per day</li>
+ </ul>
+ <h3>Contract terms</h3>
+ <p class="askbox">The contract terms are not public. Please ask <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <p class="src">Crossref: no text-mining links; licence information for 99 % of recent and 96 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="iop">
+<summary><span class="name">IOP Publishing</span><span class="tag warn">TDM conditional</span><span class="tag warn">AI conditional</span><span class="tag info">Crossref partly: 100 % / 60 %</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://ioppublishing.org/legal/textanddataminingpolicy/">IOP T&amp;DM Policy</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API; delivery on request</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>Request with a DOI list or publication period; delivery via sFTP</li>
+  <li>XML metadata (including abstracts and references); full text as PDF for almost all articles, as XML for most recent articles</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Internal and non-commercial use only; no crawling</li>
+  <li>AI for internal purposes only, otherwise prior permission required</li>
+  <li>Results (output) may be used freely</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 100 % of recent and 60 % of older articles; licence information for 100 % and 60 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="karger">
+<summary><span class="name">Karger</span><span class="tag ok">TDM permitted</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://karger.com/pages/industry-access-karger-content">Access Karger Content</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API; TDM after prior request</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>Content as XML and PDF</li>
+  <li>FTP data service with weekly updates (aimed at industry customers)</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Non-commercial, scholarly, project-based research, only during the term of the contract</li>
+  <li>TDM rules also apply to AI tools; training in a closed or self-hosted environment permitted for research</li>
+  <li>Bots and indexing only within the scope of TDM</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 51 % of recent and 78 % of older articles; licence information for 98 % and 93 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="lww">
+<summary><span class="name">Lippincott Williams &amp; Wilkins (LWW)</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul><li>no dedicated TDM page from the publisher</li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>No public information on delivery route, formats or quotas</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Non-commercial, academic TDM, only for Wolters Kluwer Health content</li>
+  <li>No copies of substantial parts</li>
+ </ul>
+ <p class="src">Crossref (member Wolters Kluwer Health): text-mining links for 1 % of recent and 8 % of older articles; licence information for 33 % and 11 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="mdpi">
+<summary><span class="name">MDPI</span><span class="tag ok">TDM permitted</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://www.mdpi.com/librarians#Indexing_amp_Content_Access">Guidelines for Librarians: Content Access</a></li>
+  <li><a href="https://www.mdpi.com/openaccess">Open Access Policy</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>not required; FTP access on request</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>OAI-PMH:</strong> metadata in Dublin Core and AGRIS; sufficient for title, abstract, keywords and DOI</li>
+  <li><strong>FTP bulk download:</strong> full texts of all articles (PDF, XML), updated twice a month</li>
+  <li><strong>Crossref:</strong> ORCID, affiliations, funders and references require Crossref; MDPI deposits new metadata there within about 24 hours of publication (<a href="https://blog.mdpi.com/2026/10/13/high-quality-metadata-empower-open-access/">MDPI Blog</a>).</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>The article's CC licence applies (usually CC BY): use with attribution</li>
+ </ul>
+ <p class="src">Crossref: hardly any text-mining links (0 % / 1 %); licence information for 100 % of recent and 98 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="oup">
+<summary><span class="name">Oxford University Press (OUP)</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://academic.oup.com/pages/legal-and-policy/text-and-data-mining">OUP Text and Data Mining</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API; access beyond what is permitted only after whitelisting</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>No public information on formats or quotas</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Non-commercial TDM by members of academic institutions</li>
+  <li>Copies only for TDM, not to be passed on, delete after use; attribution when publishing</li>
+  <li>No crawling</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 0 % of recent and 10 % of older articles; licence information for 99 % and 34 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="plos">
+<summary><span class="name">Public Library of Science (PLOS)</span><span class="tag ok">TDM permitted</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://api.plos.org/">PLOS Search API</a></li>
+  <li><a href="https://plos.org/text-and-data-mining/">PLOS Text and Data Mining</a></li>
+  <li><a href="https://theplosblog.plos.org/2017/11/unrestricted-text-and-data-mining-with-allofplos/">allofPLOS (complete download)</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>not required</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Search API:</strong> metadata and article sections as XML or JSON; max. 100 rows per request; 7200 requests/day, 300/hour, 10/minute</li>
+  <li><strong>allofPLOS:</strong> all full texts and metadata as JATS XML, approx. 5 GB, updated daily</li>
+  <li>Metadata with abstracts also via PubMed Central</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No contract; all content under CC BY: use with attribution</li>
+ </ul>
+ <p class="src">Crossref: no text-mining links; licence information for 100 % of recent and 99 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="rsc">
+<summary><span class="name">Royal Society of Chemistry (RSC)</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul><li>no public API documentation</li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API; delivery route by agreement with RSC</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>TDM on locally loaded content; results on a university server</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>TDM permitted, delivery route by mutual agreement</li>
+  <li>No automated programs or web crawlers</li>
+  <li>Uses not mentioned, e.g. AI, require permission</li>
+ </ul>
+ <p class="src">Crossref: no text-mining links; licence information for 90 % of recent and 29 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="sage">
+<summary><span class="name">Sage</span><span class="tag na">TDM not specified</span><span class="tag na">AI not specified</span><span class="tag info">Crossref 99 % / 89 %</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://www.sagepub.com/tdm-ai-policy">TDM and AI policy</a></li>
+  <li><a href="https://journals.sagepub.com/page/policies/text-and-data-mining">Text and Data Mining on Sage Journals</a></li>
+  <li><a href="https://www.crossref.org/documentation/retrieve-metadata/text-and-data-mining/">Crossref Text and Data Mining</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no publisher API; retrieval via the Crossref links</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>Full texts via the text-mining links in the Crossref metadata</li>
+  <li>Weekdays 00:00–12:00 (Los Angeles time) max. 1 request every 6 seconds, otherwise 1 every 2 seconds</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No valid contract with TDM provisions; only individual titles licensed</li>
+  <li>Website: non-commercial TDM of lawfully accessible content permitted; any AI use requires a licence from Sage</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 99 % of recent and 89 % of older articles; licence information for 99 % and 91 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="springer">
+<summary><span class="name">Springer Nature</span><span class="tag warn">TDM conditional</span><span class="tag warn">AI conditional</span><span class="tag info">Crossref 96 % / 89 %</span></summary>
+<div class="body">
+ <div class="tool"><strong>Download tool:</strong> <a href="https://github.com/k-woitas/springer-tool">Data tool for Springer Nature</a>, runs in the browser with a small local Python script, retrieval by DOI via the Meta, Open Access and TDM APIs.
+  <ul><li>Metadata with abstracts: CSV, JSON</li><li>Full texts: JATS XML (original), TXT</li></ul></div>
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://dev.springernature.com/">Springer Nature Developer Portal</a></li>
+  <li><a href="https://www.springernature.com/gp/researchers/text-and-data-mining">TDM information</a></li>
+  <li><a href="https://dev.springernature.com/docs/python-api-wrapper/">Python API Wrapper</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li><a href="https://datasolutions.springernature.com/account/api-management/">API key</a> for all APIs</li>
+  <li>TDM key for subscribed full texts on <a href="mailto:ds.ub@unibe.ch">request</a></li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>TDM API:</strong> subscribed full texts, JATS XML; approx. 500 hits/day, 200/minute</li>
+  <li><strong>Open Access API:</strong> over 1.5 million OA full texts, JATS XML; 500 hits/day, 100/minute</li>
+  <li><strong>Meta API:</strong> metadata with abstracts for over 16 million documents; JSON, XML</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Download, including automated, to an internal server</li>
+  <li>No generative AI with material from the TDM API</li>
+  <li>Deletion obligation; no systematic downloading outside the API</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 96 % of recent and 89 % of older articles; licence information for 96 % and 90 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="tandf">
+<summary><span class="name">Taylor &amp; Francis</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://taylorandfrancis.com/our-policies/textanddatamining/">Taylor &amp; Francis TDM policy</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API; access via a dedicated IP address</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li>No public information on formats or quotas; delivery after project registration</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Register every project in writing in advance</li>
+  <li>Academic research, non-commercial; results on the university's secure network</li>
+  <li>No robots outside the designated channels</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 30 % of recent and 4 % of older articles; licence information for 53 % and 8 % respectively.</p>
+</div>
+</details>
+
+<details class="pub" id="ucpress">
+<summary><span class="name">University of California Press (UC Press)</span><span class="tag na">TDM not specified</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul><li>no public TDM or API documentation</li></ul></div>
+ <div><h3>API key</h3><ul><li>no public API</li></ul></div>
+ </div>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No package licence, individual titles only; no information on TDM</li>
+ </ul>
+ <p class="src">Crossref: hardly any text-mining links (0 % / 1 %); licence information for 13 % of recent and 2 % of older articles.</p>
+</div>
+</details>
+
+<details class="pub" id="wiley">
+<summary><span class="name">Wiley</span><span class="tag warn">TDM conditional</span><span class="tag warn">AI conditional</span><span class="tag info">Crossref partly: 48 % / 94 %</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley Text and Data Mining</a></li>
+  <li><a href="https://github.com/WileyLabs/tdm-client">Python client tdm-client</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>TDM token after accepting the click-through licence</li>
+  <li>Retrieval via the university's IP address</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Wiley TDM API:</strong> full texts as PDF only, by DOI (<code>api.wiley.com/onlinelibrary/tdm/v1/articles/{DOI}</code>)</li>
+  <li>Max. 3 requests per second</li>
+ </ul>
+ <h3>Contract terms (excerpt)</h3>
+ <ul>
+  <li>Access via the API only, no crawling</li>
+  <li>Loading onto own servers and indexing permitted</li>
+  <li>Deletion after the project ends</li>
+ </ul>
+ <p class="src">Crossref: text-mining links for 48 % of recent and 94 % of older articles, leading directly to the Wiley TDM API; licence information for 100 % and 99 % respectively.</p>
+</div>
+</details>
+
+<h2>Databases and metadata services</h2>
+
+<details class="pub" id="crossref">
+<summary><span class="name">Crossref</span><span class="tag ok">TDM permitted (metadata)</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/">REST API</a></li>
+  <li><a href="https://www.crossref.org/documentation/retrieve-metadata/text-and-data-mining/">Crossref Text and Data Mining</a></li>
+  <li><a href="https://www.crossref.org/documentation/retrieve-metadata/bulk-downloads/">Public data files (dumps)</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>not required; higher limits with the <code>mailto</code> parameter (“polite pool”)</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>REST API:</strong> metadata on works, journals, members, funders etc.; JSON</li>
+  <li>Per work, full-text links (field <code>link</code>, e.g. for text mining) and licence URLs (field <code>license</code>); filter <code>full-text.application</code></li>
+  <li>Single-record requests 5 per second (10 with <code>mailto</code>), list requests 1 and 3 per second respectively</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No contract; metadata “free to use”, some abstracts may be protected; funder data CC0</li>
+  <li>Access to the full text behind a Crossref link remains controlled by the publisher</li>
+ </ul>
+</div>
+</details>
+
+<details class="pub" id="dimensions">
+<summary><span class="name">Dimensions</span><span class="tag warn">TDM conditional</span><span class="tag na">AI not specified</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://docs.dimensions.ai/dsl/api.html">Analytics API</a></li>
+  <li><a href="https://api-lab.dimensions.ai/">Dimensions API Lab</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>Analytics API key on request</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Analytics API:</strong> queries via POST, response in JSON; token obtained from the API key, valid for about 2 hours; Python client Dimcli; max. 30 requests per minute, 1000 records per query, 50,000 per search</li>
+  <li><strong>Analytics MCP:</strong> connects AI assistants (e.g. Claude Desktop, VS Code) using the API key; local or hosted</li>
+ </ul>
+ <h3>Contract terms</h3>
+ <p class="askbox">The contract terms are not public. Please ask <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <h3>Further terms per website</h3>
+ <ul>
+  <li>free access possible for eligible scientometric research (<a href="https://www.dimensions.ai/scientometric-research/">Scientometric research</a>)</li>
+  <li>Analytics API not for local copies replacing the API and not for training purposes; limit use to the specific analysis task; Dimensions may block access in case of violations (<a href="https://docs.dimensions.ai/dsl/usagepolicy.html">DSL Usage Policy</a>)</li>
+ </ul>
+</div>
+</details>
+
+<details class="pub" id="openalex">
+<summary><span class="name">OpenAlex</span><span class="tag ok">TDM permitted</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://help.openalex.org/">Documentation</a> · <a href="https://help.openalex.org/api/">API reference</a></li>
+  <li><a href="https://developers.openalex.org/download/overview">Data Dump</a></li>
+  <li><a href="https://help.openalex.org/tutorials/">Tutorials</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>free key recommended (higher daily budget, cursor paging)</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>REST API:</strong> works, authors, sources, institutions, topics, publishers, funders; metadata with citation data and full-text links; JSON</li>
+  <li>Without key 10, with free key 30 requests per second; daily budget USD 0.10 and USD 1 respectively</li>
+  <li><strong>Data Dump:</strong> free quarterly snapshot</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No contract; data under CC0</li>
+ </ul>
+</div>
+</details>
+
+<details class="pub" id="pmc">
+<summary><span class="name">PubMed Central (PMC)</span><span class="tag ok">TDM permitted</span><span class="tag warn">AI conditional</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://pmc.ncbi.nlm.nih.gov/tools/textmining/">PMC Article Datasets</a></li>
+  <li><a href="https://pmc.ncbi.nlm.nih.gov/tools/cloud/">PMC Cloud Service</a> · <a href="https://pmc.ncbi.nlm.nih.gov/tools/oai/">OAI-PMH</a></li>
+  <li><a href="https://www.ncbi.nlm.nih.gov/research/bionlp/APIs/BioC-PMC/">BioC API</a> · <a href="https://www.ncbi.nlm.nih.gov/books/NBK25501/">E-Utilities</a></li></ul></div>
+ <div><h3>API key</h3><ul><li>not required</li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Open Access Subset:</strong> XML, TXT, PDF, BioC; split by licence (commercial use allowed, non-commercial only, other)</li>
+  <li><strong>Author Manuscript Dataset:</strong> XML, TXT, BioC</li>
+  <li>XML via all access routes, TXT and PDF only via the Cloud Service (AWS); FTP discontinued</li>
+ </ul>
+ <h3>Terms of use</h3>
+ <ul>
+  <li>No contract; at least a TDM licence, otherwise the CC licence of the individual article</li>
+ </ul>
+</div>
+</details>
+
+<details class="pub" id="scopus">
+<summary><span class="name">Scopus</span><span class="tag na">TDM not specified</span><span class="tag ok">AI permitted</span></summary>
+<div class="body">
+ <div class="grid">
+ <div><h3>Key links</h3><ul>
+  <li><a href="https://dev.elsevier.com/sc_apis.html">Scopus APIs</a> · <a href="https://dev.elsevier.com/sc_api_spec.html">API Specification</a></li>
+  <li>Swagger portal <a href="https://dev.elsevier.com/scopus.html">Interactive Scopus APIs</a></li>
+  <li><a href="https://dev.elsevier.com/guides/Scopus%20API%20Guide_V1_20230907.pdf">Getting Started Guide</a></li></ul></div>
+ <div><h3>API key</h3><ul>
+  <li>Account on the Developer Portal and <a href="https://dev.elsevier.com/apikey/manage">API key</a></li></ul></div>
+ </div>
+ <h3>Content, formats and quotas</h3>
+ <ul>
+  <li><strong>Scopus Search API:</strong> metadata; JSON, Atom, XML; 20,000 requests/week, 9 per second</li>
+  <li><strong>Abstract Retrieval API:</strong> abstracts linked to author and affiliation profiles; 10,000/week</li>
+  <li><strong>Author Retrieval API:</strong> author profiles; 5000/week</li>
+  <li><strong>Affiliation Retrieval API:</strong> institution profiles; JSON, XML; 5000/week</li>
+  <li><strong>Serial Title API:</strong> journal data by ISSN with metrics (CiteScore, SJR, SNIP); JSON, XML; 20,000/week</li>
+ </ul>
+ <h3>Contract terms</h3>
+ <p class="askbox">The contract terms are not public. Please ask <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+</div>
+</details>
+
+<footer>
+ <p><strong>Published by:</strong> University Library Bern, Digital Scholarship · Contact: <a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a></p>
+ <p>“Recent articles” = from 2024, “older” = up to 2023 (Crossref current/backfile, journal articles only). Sources: licence agreements of the University Library Bern and provider websites, as of 3 November 2026. This information is not legal advice.</p>
+ <p>Content licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>.</p>
+</footer>
+</main>
+<script>
+// Alle Abschnitte auf- oder zuklappen (ohne Sprung an den Seitenanfang)
+let bulk=false;
+const tb=document.querySelector('.toggleall');
+if(tb)tb.addEventListener('click',()=>{
+ const all=[...document.querySelectorAll('details.pub')];
+ const open=!all.every(d=>d.open);
+ bulk=true; all.forEach(d=>d.open=open);
+ setTimeout(()=>{bulk=false;},0);
+ tb.textContent=open?tb.dataset.close:tb.dataset.open;
+});
+// Beim Drucken alle Abschnitte öffnen
+window.addEventListener('beforeprint',()=>{bulk=true;document.querySelectorAll('details.pub').forEach(d=>d.open=true);});
+window.addEventListener('afterprint',()=>{setTimeout(()=>{bulk=false;},0);});
+// Filters: access and data type are combined
+let fA='all', fD='all';
+function applyFilters(){
+ document.querySelectorAll('#overview tbody tr:not(.group)').forEach(r=>{
+  const okA=fA==='all'||r.dataset.tags.split(' ').includes(fA);
+  const okD=fD==='all'||(r.dataset.types||'').split(' ').includes(fD);
+  r.hidden=!(okA&&okD);
+ });
+ // Hide a group row when no row below it is visible
+ document.querySelectorAll('#overview tr.group').forEach(g=>{
+  let n=g.nextElementSibling, any=false;
+  while(n&&!n.classList.contains('group')){if(!n.hidden)any=true;n=n.nextElementSibling;}
+  g.hidden=!any;
+ });
+}
+document.querySelectorAll('#accessfilter button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('#accessfilter button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ fA=b.dataset.f; applyFilters();
+}));
+document.querySelectorAll('#datafilter button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('#datafilter button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ fD=b.dataset.d; applyFilters();
+}));
+// Set the URL anchor where allowed (embedded previews block this)
+function setHash(h){
+ try{history.replaceState(null,'',h||location.pathname+location.search);}catch(e){}
+}
+// Clicking a provider in the overview opens its section and scrolls to it
+function openPub(id){
+ const d=document.getElementById(id);
+ if(!d||d.tagName!=='DETAILS')return;
+ d.open=true;
+ d.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('#overview a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+ e.preventDefault();
+ const id=a.getAttribute('href').slice(1);
+ openPub(id);
+ setHash('#'+id);
+}));
+// Closing a section scrolls back to the top of the page
+document.querySelectorAll('details.pub').forEach(d=>d.addEventListener('toggle',()=>{
+ if(!d.open&&!bulk){
+  window.scrollTo({top:0,behavior:'smooth'});
+  setHash('');
+ }
+}));
+if(location.hash)openPub(location.hash.slice(1));
+</script>
+</body>
+</html>
