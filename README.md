@@ -8,8 +8,9 @@ This repository contains tools developed to address various issues relating to d
 
 | Folder | What it covers | Format | Date |
 |---|---|---|---|
-| [browser-tools](browser-tools/) | No-code tools: [erara-explorer](browser-tools/erara-explorer/) downloads metadata, full texts, entities and images from **e-rara** and **e-manuscripta**; [eperiodica-explorer](browser-tools/eperiodica-explorer/) downloads metadata, full texts and images from e-periodica | HTML, runs in the browser | 2026 |
-| [tdm-ai](tdm-ai/) | Overview of **TDM and AI** access routes, APIs, formats and licence terms for publishers and databases licensed by the University Library Bern; [use online](https://ub-unibe-ch.github.io/ds-pytools/tdm-ai/) | HTML, runs in the browser | 2026 |
+| [browser-tools](browser-tools/) | * [erara-explorer](browser-tools/erara-explorer/) downloads metadata, full texts, entities and images from **e-rara** and **e-manuscripta**
+* [eperiodica-explorer](browser-tools/eperiodica-explorer/) downloads metadata, full texts and images from **e-periodica** | HTML, runs in the browser | 2026 |
+| [tdm-ai](tdm-ai/) | Overview of **TDM and AI** access routes, **APIs, formats and licence terms** for publishers and databases licensed by the University Library Bern; [use online](https://ub-unibe-ch.github.io/ds-pytools/tdm-ai/) | HTML, runs in the browser | 2026 |
 | [bibliographic-sources](bibliographic-sources/) | Scholarly publication data via the **Crossref API** and **OpenAlex API** | Python notebooks | 2026 |
 | [Swissdox@LiRI](Swissdox@LiRI/) | Swiss news articles via the **Swissdox@LiRI API** | Python notebooks | 2024 |
 | [SRU](SRU/) | **Swisscovery** library catalogue queries via SRU (in German) | Python notebooks | 2024 |
