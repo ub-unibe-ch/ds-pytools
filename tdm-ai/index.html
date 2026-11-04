@@ -47,7 +47,6 @@ code{font-size:.85em;background:var(--panel);padding:1px 4px}
 footer{margin-top:48px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
 @media (max-width:600px){.body{padding:0 14px 16px 18px}.grid{grid-template-columns:1fr}}
 .ask{background:#fff;color:var(--info);border:1px solid var(--info);font-weight:normal}
-.askbox{background:var(--info-bg);border-left:3px solid var(--info);padding:10px 14px;margin:6px 0 4px}
 .topbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:24px}
 .org a{color:inherit;text-decoration:none}.org a:hover{text-decoration:underline}
 .org{margin:0;font-size:.9rem;font-weight:bold;color:var(--red-dark);letter-spacing:.02em}
@@ -225,8 +224,13 @@ footer p{margin:6px 0}
   <li><strong>Harvest API:</strong> Artikellisten und Einzelartikel per DOI; APS Article JSON, XML, PDF oder BagIt-Paket (Volltext-XML, Metadaten, Abbildungen, PDF)</li>
   <li><strong>APS Data Sets:</strong> Metadaten und Zitationspaare als Gesamtdatensatz, auf Antrag</li>
  </ul>
- <h3>Vertragsbedingungen</h3>
- <p class="askbox">Die Vertragsbedingungen sind nicht öffentlich. Bitte erfragen Sie sie bei <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <h3>Vertragsbedingungen (Ausschnitt)</h3>
+ <ul>
+  <li>TDM nur auf schriftliche Anfrage; APS darf die Erlaubnis nicht unbillig verweigern</li>
+  <li>Nur Forschung, Lehre und privates Studium, nicht kommerziell; TDM umfasst auch KI</li>
+  <li>KI nur lokal, selbst gehostet oder in geschlossener Umgebung; Training und Fine-Tuning nur mit schriftlicher Zustimmung</li>
+  <li>Kein Crawling, keine systematischen dauerhaften Kopien</li>
+ </ul>
  <p class="src">Crossref: keine Text-Mining-Links; Lizenzangaben für 100 % der neueren und 99 % der älteren Artikel.</p>
 </div>
 </details>
@@ -322,8 +326,12 @@ footer p{margin:6px 0}
   <li><strong>Open Access API / Full-Text Access API:</strong> Volltexte über die Article Number; JSON oder XML</li>
   <li>Max. 10 Anfragen pro Sekunde und 200 pro Tag</li>
  </ul>
- <h3>Vertragsbedingungen</h3>
- <p class="askbox">Die Vertragsbedingungen sind nicht öffentlich. Bitte erfragen Sie sie bei <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <h3>Vertragsbedingungen (Ausschnitt)</h3>
+ <ul>
+  <li>Jede TDM-Tätigkeit vorab melden; Zugangsweg wird gemeinsam festgelegt</li>
+  <li>KI nur nicht kommerziell in lokaler oder geschlossener Umgebung, ohne Training</li>
+  <li>Mehr als 100 Dokumente in einem KI-Werkzeug nur nach Gesuch über die API</li>
+ </ul>
  <p class="src">Crossref: keine Text-Mining-Links; Lizenzangaben für 99 % der neueren und 96 % der älteren Artikel.</p>
 </div>
 </details>
@@ -643,8 +651,13 @@ footer p{margin:6px 0}
   <li><strong>Analytics API:</strong> Abfragen per POST, Antwort in JSON; Token aus dem API-Key, ca. 2 Stunden gültig; Python-Client Dimcli; max. 30 Anfragen pro Minute, 1000 Datensätze pro Abfrage, 50’000 pro Suche</li>
   <li><strong>Analytics MCP:</strong> Anbindung von KI-Assistenten (z. B. Claude Desktop, VS Code) mit dem API-Key; lokal oder gehostet</li>
  </ul>
- <h3>Vertragsbedingungen</h3>
- <p class="askbox">Die Vertragsbedingungen sind nicht öffentlich. Bitte erfragen Sie sie bei <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <h3>Vertragsbedingungen (Ausschnitt)</h3>
+ <ul>
+  <li>Kopieren, Analysieren und Verarbeiten nur für interne Zwecke während der Laufzeit; Bulk-Daten nur auf eigenen, gesicherten Systemen</li>
+  <li>Keine Weitergabe an Dritte, keine kommerzielle Nutzung, keine Suchfunktionen oder Tools für Dritte</li>
+  <li>Veröffentlichung von Daten nur mit Zustimmung von Digital Science und mit Quellenangabe</li>
+  <li>KI ist im Vertrag nicht geregelt; Nutzung nur intern, nicht für Dritte</li>
+ </ul>
  <h3>Weitere Bedingungen laut Website</h3>
  <ul>
   <li>kostenloser Zugang für berechtigte szientometrische Forschung (<a href="https://www.dimensions.ai/scientometric-research/">Scientometric research</a>) möglich</li>
@@ -719,8 +732,15 @@ footer p{margin:6px 0}
   <li><strong>Affiliation Retrieval API:</strong> Profile von Einrichtungen; JSON, XML; 5000/Woche</li>
   <li><strong>Serial Title API:</strong> Zeitschriftendaten per ISSN mit Metriken (CiteScore, SJR, SNIP); JSON, XML; 20’000/Woche</li>
  </ul>
- <h3>Vertragsbedingungen</h3>
- <p class="askbox">Die Vertragsbedingungen sind nicht öffentlich. Bitte erfragen Sie sie bei <a href="mailto:ds.ub@unibe.ch">Digital Scholarship</a> (<a href="mailto:ds.ub@unibe.ch">ds.ub@unibe.ch</a>).</p>
+ <h3>Vertragsbedingungen (Ausschnitt)</h3>
+ <ul>
+  <li>TDM ist weder erlaubt noch verboten, also nicht geregelt; Analysieren und Verarbeiten ist nur mit einem geschlossenen KI-Werkzeug erlaubt</li>
+  <li>Bezugswege: Roboter, Crawler, automatisierte Downloads und systematische Speicherung sind verboten; die Scopus-APIs regelt der Vertrag nicht</li>
+  <li>Nicht geregelte Nutzungen wie TDM können bei Elsevier gemeldet werden; ohne Widerspruch innert 30 Tagen gelten sie als erlaubt</li>
+  <li>KI-Nutzung in einem geschlossenen KI-Werkzeug erlaubt, einschliesslich Training; offene KI-Werkzeuge verboten</li>
+  <li>Metadaten zum eigenen Output dürfen ins Repository</li>
+  <li>Laut Website nur nicht kommerzielle Nutzung</li>
+ </ul>
 </div>
 </details>
 
