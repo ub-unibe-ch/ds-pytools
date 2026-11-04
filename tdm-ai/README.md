@@ -32,7 +32,7 @@ Each page is a single self-contained HTML file and can also be downloaded and op
 
 ## Notes
 
-The information is a summary for orientation only and is not legal advice. Licence agreements take precedence over information on provider websites. Contract terms for some providers are not public. Please contact [Digital Scholarship](https://www.ub.unibe.ch/services/digital_scholarship/index_eng.html) ([ds.ub@unibe.ch](mailto:ds.ub@unibe.ch)) before any TDM or AI use of licensed content.
+The information is a summary for orientation only and is not legal advice. Licence agreements take precedence over information on provider websites. Please contact [Digital Scholarship](https://www.ub.unibe.ch/services/digital_scholarship/index_eng.html) ([ds.ub@unibe.ch](mailto:ds.ub@unibe.ch)) before any TDM or AI use of licensed content.
 
 Status: 3 November 2026.
 
