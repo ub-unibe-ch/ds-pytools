@@ -129,7 +129,7 @@ footer p{margin:6px 0}
 <tr data-tags="" data-types=""><td><a href="#ucpress">UC Press</a></td><td><span class="tag na">not specified</span></td><td><span class="tag na">not specified</span></td><td>no API; only individual titles licensed</td><td>–</td><td>–</td></tr>
 <tr data-tags="api tool" data-types="fulltext"><td><a href="#wiley">Wiley</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag warn">conditional</span></td><td>TDM token (click-through)</td><td>PDF</td><td>3 requests/s</td></tr>
 <tr class="group"><th colspan="6">Databases and metadata services</th></tr>
-<tr data-tags="api db" data-types="abstract authors citations funder journals"><td><a href="#crossref">Crossref</a></td><td><span class="tag ok">permitted</span><br><span class="small">metadata</span></td><td><span class="tag na">not specified</span></td><td>REST API without key; <code>mailto</code> recommended; Public Data Files (dump)</td><td>JSON</td><td>5–10 requests/s</td></tr>
+<tr data-tags="api tool db" data-types="abstract authors citations funder journals"><td><a href="#crossref">Crossref</a></td><td><span class="tag ok">permitted</span><br><span class="small">metadata</span></td><td><span class="tag na">not specified</span></td><td>REST API without key; <code>mailto</code> recommended; Public Data Files (dump)</td><td>JSON</td><td>5–10 requests/s</td></tr>
 <tr data-tags="api tool db" data-types="abstract authors citations funder journals"><td><a href="#dimensions">Dimensions</a></td><td><span class="tag warn">conditional</span></td><td><span class="tag na">not specified</span></td><td>Analytics API; API key, used to obtain a token (valid for about 2 hours)</td><td>JSON</td><td>30 requests/min</td></tr>
 <tr data-tags="api db" data-types="abstract authors citations funder journals"><td><a href="#openalex">OpenAlex</a></td><td><span class="tag ok">permitted</span><br><span class="small">CC0</span></td><td><span class="tag ok">permitted</span><br><span class="small">CC0</span></td><td>REST API; free key recommended; data dump (quarterly)</td><td>JSON</td><td>10–30 requests/s</td></tr>
 <tr data-tags="api oa db" data-types="abstract fulltext"><td><a href="#pmc">PubMed Central</a></td><td><span class="tag ok">permitted</span></td><td><span class="tag warn">conditional</span><br><span class="small">depending on licence</span></td><td>Cloud (AWS), OAI-PMH, E-Utilities, BioC API</td><td>JATS XML, TXT, PDF, BioC (XML, JSON); Dublin Core</td><td>–</td></tr>
@@ -614,6 +614,8 @@ footer p{margin:6px 0}
 <details class="pub" id="crossref">
 <summary><span class="name">Crossref</span><span class="tag ok">TDM permitted (metadata)</span><span class="tag na">AI not specified</span></summary>
 <div class="body">
+ <div class="tool"><strong>Tutorial:</strong> <a href="https://github.com/ub-unibe-ch/ds-pytools/blob/main/bibliographic-sources/Crossref_API.ipynb">Crossref API</a>, Jupyter notebook (Python) by Digital Scholarship, University Library Bern.
+  <ul><li>Works: metadata, queries, filters, facets, cursors, citation formats, retractions, relations</li><li>Funders, members, journals, prefixes, types and licences</li><li>Habanero Python client library</li></ul></div>
  <div class="grid">
  <div><h3>Key links</h3><ul>
   <li><a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/">REST API</a></li>
