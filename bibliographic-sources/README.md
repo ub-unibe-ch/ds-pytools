@@ -4,8 +4,8 @@ Find and mine scholarly publication data and manage references with Python tools
 
 This folder contains tutorials to **access APIs** of notable providers and aggregators of **scholarly publication data**.
 
-* **Crossref_API**: Comprehensive introduction to the [Crossref](https://www.crossref.org/) REST API: works (metadata, queries, filters, facets, cursors, citation formats, retractions, relations), funders, members, journals, prefixes, types, licenses, and the Habanero client library (Update 2026-11)
-* **OpenAlex_API**: Introduction to core functions of the [OpenAlex](https://developers.openalex.org/) API: works, authors, institutions, sources, topics (Update 2026-10: API key required since February 2026, data version "Walden", Topics instead of Concepts)
+* **Crossref_API**: Comprehensive introduction to the [Crossref](https://www.crossref.org/) REST API: works (metadata, queries, filters, facets, cursors, citation formats, retractions, relations), funders, members, journals, prefixes, types, licenses, and the Habanero client library (Last update 2026-11)
+* **OpenAlex_API**: Comprehensive introduction to core functions of the [OpenAlex](https://developers.openalex.org/) API: works, authors, institutions, sources, topics (Last update 2026-10)
 
 
 The tutorials are presented as [Jupyter notebooks](http://jupyter.org). Installation instructions for Python libraries required by different tools can be found in the corresponding Jupyter notebooks.
