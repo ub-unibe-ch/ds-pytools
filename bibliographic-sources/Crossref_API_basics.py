@@ -3,6 +3,30 @@
 
 # # Using the Crossref REST API
 
+# ## Table of contents
+# 
+# - [🎓 About Crossref](#about-crossref)
+# - [📚 Works endpoint](#works-endpoint)
+#   - [Check existence and registration agency](#check-existence-and-registration-agency)
+#   - [Get citations and references in other formats](#get-citations-and-references-in-other-formats)
+#   - [Search works with queries](#search-works-with-queries)
+#     - [Match references with `query.bibliographic`](#match-references-with-query-bibliographic)
+#   - [Filter works](#filter-works)
+#     - [Select fields and get random samples](#select-fields-and-get-random-samples)
+#   - [Facets: summary statistics](#facets-summary-statistics)
+#   - [Retrieve large result sets with cursors](#retrieve-large-result-sets-with-cursors)
+#   - [Corrections, retractions and other updates](#corrections-retractions-and-other-updates)
+#   - [Relations between works](#relations-between-works)
+# - [💶 Funders endpoint](#funders-endpoint)
+# - [🏢 Members endpoint](#members-endpoint)
+# - [📰 Journals endpoint](#journals-endpoint)
+# - [🔢 Prefixes endpoint](#prefixes-endpoint)
+# - [🏷️ Types endpoint](#types-endpoint)
+# - [📜 Licenses endpoint](#licenses-endpoint)
+# - [⚠️ Error handling and rate limits](#error-handling-and-rate-limits)
+# - [🧰 Using a client library: Habanero](#using-a-client-library-habanero)
+
+# <a id="about-crossref"></a>
 # ## 🎓 About Crossref
 
 # [Crossref](https://www.crossref.org/) is the largest **DOI registration agency** for scholarly content. Its members - publishers, universities, societies, funders - register **Digital Object Identifiers (DOIs)** for their publications and deposit the corresponding **metadata** with Crossref: titles, authors, ORCIDs, affiliations, references, funding information, licenses, links to full texts, corrections and retractions and much more. Today Crossref holds metadata on more than 180 million records: journal articles, books and chapters, conference papers, preprints, datasets, dissertations, reports, standards, peer reviews and even research grants.
@@ -93,6 +117,7 @@ retry = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 5
 session.mount('https://', HTTPAdapter(max_retries=retry))
 
 
+# <a id="works-endpoint"></a>
 # ## 📚 Works endpoint
 
 # The `/works` endpoint gives access to the metadata of all registered content items. A single *Work* is retrieved by its **DOI**: `https://api.crossref.org/works/{doi}`. DOIs are case-insensitive and may contain characters like `/`, `(` or `;`; the `requests` library takes care of encoding them correctly.
@@ -219,6 +244,7 @@ print(elife.get('license'))
 elife.get('link')
 
 
+# <a id="check-existence-and-registration-agency"></a>
 # ### Check existence and registration agency
 
 # Not every DOI is registered with Crossref: there are other registration agencies, especially [DataCite](https://datacite.org/), which registers DOIs for research data, software and repository content (e.g. Zenodo). If a DOI is unknown to Crossref, you will get the status code `404`.
@@ -243,6 +269,7 @@ for d in ['10.1063/1.1699114', '10.5281/zenodo.3242074']:
     print(d, r.json()['message']['agency'])
 
 
+# <a id="get-citations-and-references-in-other-formats"></a>
 # ### Get citations and references in other formats
 
 # Crossref can deliver the metadata of a single work in other formats: **BibTeX** or **RIS** for reference managers, **CSL JSON** for citation processors, or a **formatted citation** in one of the many [citation styles](https://citationstyles.org/). The general way to do this is [content negotiation](https://www.crossref.org/documentation/retrieve-metadata/content-negotiation/) at `https://doi.org/{doi}` with a corresponding `Accept` header, which works for Crossref and DataCite DOIs:
@@ -280,6 +307,7 @@ for style in ['apa', 'ieee', 'nature']:
     print(style, ':', r.text)
 
 
+# <a id="search-works-with-queries"></a>
 # ### Search works with queries
 
 # Instead of retrieving a single work, you can **search** the `/works` endpoint. The result is a **list** of works, sorted by **relevance** (`score`). There are two kinds of queries:
@@ -335,6 +363,7 @@ for item in data['message']['items']:
     print(item['DOI'], item.get('title'), [a.get('family') for a in item.get('author', [])])
 
 
+# <a id="match-references-with-query-bibliographic"></a>
 # #### Match references with `query.bibliographic`
 # 
 # A very useful application of `query.bibliographic` is **reference matching**: finding the DOI for a reference given as plain text, e.g. from a reference list. Look at the `score` and compare the top results - the first hit is not always the work you are looking for! In the example below the first result is a technical report with the same title, published by the same authors before the journal article.
@@ -353,6 +382,7 @@ for item in r.json()['message']['items']:
     print(round(item['score'], 1), item['DOI'], item['type'], item.get('container-title'), item.get('title'))
 
 
+# <a id="filter-works"></a>
 # ### Filter works
 
 # **Filters** select works exactly by certain criteria. They are given in the `filter` parameter as `name:value` pairs, separated by commas. There are more than 100 filters for works, e.g.:
@@ -422,6 +452,7 @@ for item in data['message']['items']:
     print(item['is-referenced-by-count'], item['issued']['date-parts'], item.get('container-title'), item.get('title'))
 
 
+# <a id="select-fields-and-get-random-samples"></a>
 # #### Select fields and get random samples
 # 
 # Full metadata records can be large - especially due to reference lists. With the `select` parameter you can choose the fields you need, which makes responses much smaller and faster. The `sample` parameter returns a **random sample** of up to 100 works - useful for statistical analyses of metadata quality.
@@ -456,6 +487,7 @@ print('with references:', sum('reference' in i for i in items))
 print('with ORCIDs:    ', sum(any('ORCID' in a for a in i.get('author', [])) for i in items))
 
 
+# <a id="facets-summary-statistics"></a>
 # ### Facets: summary statistics
 
 # **Facets** give you summary statistics of a result set without downloading the records - similar to the `group_by` parameter of OpenAlex. Use the parameter `facet` with the name of the facet and the maximum number of values (up to 1000, `*` for the maximum). Available facets are e.g. `type-name`, `published` (year), `publisher-name`, `container-title`, `funder-name`, `affiliation`, `ror-id`, `license`, `orcid`, `issn`, `update-type`, `relation-type` and `category-name`. Several facets can be requested at once, separated by commas.
@@ -507,6 +539,7 @@ print(facets['publisher-name']['values'])
 print(facets['type-name']['values'])
 
 
+# <a id="retrieve-large-result-sets-with-cursors"></a>
 # ### Retrieve large result sets with cursors
 
 # A single request returns at most **1000 items** (`rows`). To get more results, there are two options:
@@ -567,6 +600,7 @@ df.groupby(['year', 'type']).size()
 df.sort_values('cited_by', ascending=False).head(5)
 
 
+# <a id="corrections-retractions-and-other-updates"></a>
 # ### Corrections, retractions and other updates
 
 # Publications can be **updated** after publication by corrections, errata, retractions, expressions of concern etc. Crossref records these updates in two directions:
@@ -623,6 +657,7 @@ for d in dois:
     time.sleep(0.2)
 
 
+# <a id="relations-between-works"></a>
 # ### Relations between works
 
 # The field `relation` connects works with each other, e.g. a preprint with its published version (`is-preprint-of` / `has-preprint`), a peer review with the reviewed article (`is-review-of`), translations, versions, supplements or comments. Relations can also point to non-DOI identifiers. Let's look at the most frequent relation types and an example.
@@ -651,6 +686,7 @@ r = session.get(url, params=params)
 r.json()['message']['items']
 
 
+# <a id="funders-endpoint"></a>
 # ## 💶 Funders endpoint
 
 # Funders are identified by their **Funder ID** from the [Open Funder Registry](https://www.crossref.org/services/funder-registry/) - a DOI with the prefix `10.13039`, e.g. `10.13039/501100001711` for the Swiss National Science Foundation (SNSF). In the `/funders` endpoint, only the second part (`501100001711`) is used. Funders can be searched with `query` and filtered by `location`. (Please note that Crossref is gradually moving from Funder IDs to [ROR IDs](https://ror.org/) for funders.)
@@ -714,6 +750,7 @@ print(sorted(facets['published']['values'].items(), reverse=True)[:10])
 facets['type-name']['values']
 
 
+# <a id="members-endpoint"></a>
 # ## 🏢 Members endpoint
 
 # **Members** are the organizations registering DOIs with Crossref - mostly publishers, but also universities, libraries, societies and funders. Each member has a numeric ID, one or more DOI prefixes, and statistics about its registered content. Especially interesting: the `coverage` information, telling you **how complete the deposited metadata** of a member is (share of records with abstracts, references, ORCIDs, licenses, funders, affiliations ...).
@@ -772,6 +809,7 @@ print('total results =', data['message']['total-results'])
 data['message']['facets']['type-name']['values']
 
 
+# <a id="journals-endpoint"></a>
 # ## 📰 Journals endpoint
 
 # Journals are identified by their [ISSN](https://www.issn.org/) (print or electronic). The `/journals` endpoint provides information on the publisher, subjects, the number of DOIs per year and - again - the metadata coverage. Journals can be searched by title with `query`.
@@ -830,6 +868,7 @@ r = session.get(base_url + 'journals/0028-0836/works', params=params)
 [[i['is-referenced-by-count'], i['DOI'], i['title']] for i in r.json()['message']['items']]
 
 
+# <a id="prefixes-endpoint"></a>
 # ## 🔢 Prefixes endpoint
 
 # Every DOI starts with a **prefix** (the part before the first `/`), which belongs to a Crossref member. The `/prefixes` endpoint tells you the owner of a prefix, and `/prefixes/{prefix}/works` gives access to all works registered with it.
@@ -855,6 +894,7 @@ print('total results =', data['message']['total-results'])
 data['message']['facets']['type-name']['values']
 
 
+# <a id="types-endpoint"></a>
 # ## 🏷️ Types endpoint
 
 # The `/types` endpoint lists all **content types** used by Crossref. Their `id` is used in the `type` filter, e.g. `type:posted-content` for preprints. Note that OpenAlex uses its own list of types, so types are not directly comparable between both sources.
@@ -880,6 +920,7 @@ print('total results =', data['message']['total-results'])
 data['message']['facets']['publisher-name']['values']
 
 
+# <a id="licenses-endpoint"></a>
 # ## 📜 Licenses endpoint
 
 # Many members deposit **license information** for their works - e.g. Creative Commons licenses for open access publications or text and data mining licenses. The `/licenses` endpoint lists the license URLs with the number of works using them. As the URLs are deposited by the members, you will find many variants of the same license (`http`/`https`, with or without `legalcode`, different spellings ...). So, when filtering works by `license.url`, consider the different variants.
@@ -910,6 +951,7 @@ r = session.get(url, params=params)
 r.json()['message']['facets']['license']['values']
 
 
+# <a id="error-handling-and-rate-limits"></a>
 # ## ⚠️ Error handling and rate limits
 
 # Always check the **status code** of a response before processing it:
@@ -968,6 +1010,7 @@ get_crossref('works', {'query.bibliographic': 'Einstein 1905 Zur Elektrodynamik 
                        'select': 'DOI,title,score'})
 
 
+# <a id="using-a-client-library-habanero"></a>
 # ## 🧰 Using a client library: Habanero
 
 # Instead of writing all requests yourself, you can use a client library. For Python, [Habanero](https://habanero.readthedocs.io/) is well maintained and covers all endpoints of the REST API. It handles parameters, cursors and errors for you. (The formerly used library [crossref-commons](https://gitlab.com/crossref/crossref_commons_py) is no longer maintained.)
